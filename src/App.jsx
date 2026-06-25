@@ -182,6 +182,11 @@ const addToCart = async (productOrId, qty = 1) => {
       ? products.find((p) => p.id === productOrId)
       : productOrId;
   if (!product) return;
+  const currentQty = cart.find((i) => i.product_id === product.id)?.qty || 0;
+  if (product.stock != null && currentQty + qty > product.stock) {
+    showToast(`Stoc insuficient — doar ${product.stock} disponibil`, "⚠️");
+    return;
+  }
   await storage.addToCart(product.id, qty);
   setCart((prev) => {
     const existing = prev.find((i) => i.product_id === product.id);
@@ -195,22 +200,20 @@ const addToCart = async (productOrId, qty = 1) => {
   showToast(`${product.name} adăugat în coș`);
 };
 
-const removeFromCart = async (productId) => {
-  await storage.removeFromCart(productId);
-  setCart((prev) => prev.filter((i) => i.product_id !== productId));
-};
-
 const updateCartQty = async (productId, qty) => {
   if (settings?.shopOpen === false) {
     showToast("Magazinul este momentan închis", "🔒");
     return;
   }
   if (qty <= 0) return removeFromCart(productId);
+  const product = findProduct(productId);
+  if (product && product.stock != null && qty > product.stock) {
+    showToast(`Stoc maxim disponibil: ${product.stock} ${product.unit || "buc"}`, "⚠️");
+    return;
+  }
   await storage.updateCartQty(productId, qty);
   setCart((prev) =>
-    prev.map((i) =>
-      i.product_id === productId ? { ...i, qty } : i
-    )
+    prev.map((i) => (i.product_id === productId ? { ...i, qty } : i))
   );
 };
   const clearCart = async () => {
