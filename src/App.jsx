@@ -216,6 +216,16 @@ const updateCartQty = async (productId, qty) => {
     prev.map((i) => (i.product_id === productId ? { ...i, qty } : i))
   );
 };
+  const clearCart = async () => {  const removeFromCart = async (productId) => {
+    await storage.removeFromCart(productId);
+    setCart((prev) => prev.filter((i) => i.product_id !== productId));
+  };
+
+    const removeFromCart = async (productId) => {
+    await storage.removeFromCart(productId);
+    setCart((prev) => prev.filter((i) => i.product_id !== productId));
+  };
+
   const clearCart = async () => {
     await storage.clearCart();
     setCart([]);
