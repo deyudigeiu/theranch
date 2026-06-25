@@ -1,0 +1,148 @@
+import { G, GL } from "../../lib/constants";
+
+export default function Header({ ctx }) {
+  const { setMenu, setPage, cartCount, notifCount, admin, viewAsClient } = ctx;
+
+  const showAdmin = admin && !viewAsClient;
+
+  return (
+    <div
+      style={{
+        background: "white",
+        padding: "6px 18px 12px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        boxShadow: "0 1px 8px rgba(0,0,0,0.06)",
+        flexShrink: 0,
+        zIndex: 10,
+      }}
+    >
+      {/* Hamburger */}
+      <button
+        onClick={() => setMenu(true)}
+        style={{
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          padding: 4,
+          display: "flex",
+          flexDirection: "column",
+          gap: 5,
+          position: "relative",
+        }}
+      >
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            style={{
+              width: 22,
+              height: 2.5,
+              background: "#2D2D2D",
+              borderRadius: 2,
+            }}
+          />
+        ))}
+        {notifCount > 0 && (
+          <span
+            style={{
+              position: "absolute",
+              top: -2,
+              right: -4,
+              background: "#E53935",
+              color: "white",
+              fontSize: 9,
+              fontWeight: 800,
+              width: 14,
+              height: 14,
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {notifCount}
+          </span>
+        )}
+      </button>
+
+      {/* Logo */}
+      <div style={{ textAlign: "center" }}>
+        <div
+          style={{
+            fontWeight: 900,
+            fontSize: 17,
+            color: G,
+            letterSpacing: "-0.5px",
+            fontFamily: "'Cormorant Garamond', Georgia, serif",
+            fontSize: 19,
+            fontStyle: "italic",
+          }}
+        >
+          Drăgăneasa
+        </div>
+        <div
+          style={{
+            fontSize: 9,
+            color: "#bbb",
+            letterSpacing: 2.5,
+            textTransform: "uppercase",
+            marginTop: 1,
+          }}
+        >
+          Ranch
+        </div>
+      </div>
+
+      {/* Dreapta */}
+      {showAdmin ? (
+        <span
+          style={{
+            background: "#FEF3CD",
+            color: "#B45309",
+            fontSize: 11,
+            fontWeight: 800,
+            padding: "4px 10px",
+            borderRadius: 8,
+          }}
+        >
+          ADMIN
+        </span>
+      ) : (
+        <button
+          onClick={() => setPage("cos")}
+          style={{
+            background: GL,
+            border: "none",
+            cursor: "pointer",
+            padding: "7px 12px",
+            borderRadius: 14,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          <span style={{ fontSize: 19 }}>🛒</span>
+          {cartCount > 0 && (
+            <span
+              style={{
+                background: G,
+                color: "white",
+                fontSize: 10,
+                fontWeight: 800,
+                width: 18,
+                height: 18,
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {cartCount}
+            </span>
+          )}
+        </button>
+      )}
+    </div>
+  );
+}
