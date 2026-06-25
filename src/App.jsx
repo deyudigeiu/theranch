@@ -288,6 +288,23 @@ const updateCartQty = async (productId, qty) => {
     return () => clearInterval(id);
   }, [cutoff]);
 
+  useEffect(() => {
+    const channel = supabase
+      .channel("products-realtime")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "products" },
+        (payload) => {
+          setProducts((prev) =>
+            prev.map((p) =>
+              p.id === payload.new.id ? { ...p, ...payload.new } : p
+            )
+          );
+        }
+      )
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, []);
   const findCategory = (id) =>
     categories.find((c) => c.id === id) || {
       ac: "#666",
