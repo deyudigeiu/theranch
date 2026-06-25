@@ -172,34 +172,47 @@ export default function App() {
     })();
   }, [session]);
 
-  const addToCart = async (productOrId, qty = 1) => {
-    if (settings?.shopOpen === false) {
-      showToast("Magazinul este momentan închis", "🔒");
-      return;
+const addToCart = async (productOrId, qty = 1) => {
+  if (settings?.shopOpen === false) {
+    showToast("Magazinul este momentan închis", "🔒");
+    return;
+  }
+  const product =
+    typeof productOrId === "string"
+      ? products.find((p) => p.id === productOrId)
+      : productOrId;
+  if (!product) return;
+  await storage.addToCart(product.id, qty);
+  setCart((prev) => {
+    const existing = prev.find((i) => i.product_id === product.id);
+    if (existing) {
+      return prev.map((i) =>
+        i.product_id === product.id ? { ...i, qty: i.qty + qty } : i
+      );
     }
-    const product =
-      typeof productOrId === "string"
-        ? products.find((p) => p.id === productOrId)
-        : productOrId;
-    if (!product) return;
-    const updated = await storage.addToCart(product.id, qty);
-    if (updated) setCart(updated);
-    showToast(`${product.name} adăugat în coș`);
-  };
-  const removeFromCart = async (productId) => {
-    const updated = await storage.removeFromCart(productId);
-    if (updated !== undefined) setCart(updated);
-  };
+    return [...prev, { product_id: product.id, qty }];
+  });
+  showToast(`${product.name} adăugat în coș`);
+};
 
-  const updateCartQty = async (productId, qty) => {
-    if (settings?.shopOpen === false) {
-      showToast("Magazinul este momentan închis", "🔒");
-      return;
-    }
-    if (qty <= 0) return removeFromCart(productId);
-    const updated = await storage.updateCartQty(productId, qty);
-    if (updated) setCart(updated);
-  };
+const removeFromCart = async (productId) => {
+  await storage.removeFromCart(productId);
+  setCart((prev) => prev.filter((i) => i.product_id !== productId));
+};
+
+const updateCartQty = async (productId, qty) => {
+  if (settings?.shopOpen === false) {
+    showToast("Magazinul este momentan închis", "🔒");
+    return;
+  }
+  if (qty <= 0) return removeFromCart(productId);
+  await storage.updateCartQty(productId, qty);
+  setCart((prev) =>
+    prev.map((i) =>
+      i.product_id === productId ? { ...i, qty } : i
+    )
+  );
+};
   const clearCart = async () => {
     await storage.clearCart();
     setCart([]);
