@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { G, GL, sectHdr } from "../../lib/constants";
+import { G, GL } from "../../lib/constants";
 import ImgBox from "../shared/ImgBox";
 import QA from "../shared/QA";
 import { SkeletonProductGrid } from "../shared/Skeleton";
@@ -34,7 +34,6 @@ export default function Produse({ ctx }) {
 
   return (
     <div style={{ paddingBottom: 80 }}>
-      {/* Search */}
       <div style={{ padding: "14px 18px 0" }}>
         <input
           value={search}
@@ -54,7 +53,6 @@ export default function Produse({ ctx }) {
         />
       </div>
 
-      {/* Categorii */}
       <div
         style={{
           padding: "12px 18px 0",
@@ -92,7 +90,6 @@ export default function Produse({ ctx }) {
         ))}
       </div>
 
-      {/* Sort */}
       <div
         style={{
           padding: "10px 18px 0",
@@ -121,7 +118,6 @@ export default function Produse({ ctx }) {
         </select>
       </div>
 
-      {/* Lista produse */}
       <div style={{ padding: "12px 18px 0" }}>
         {!dataLoaded ? (
           <SkeletonProductGrid />
@@ -165,12 +161,7 @@ export default function Produse({ ctx }) {
                       position: "relative",
                     }}
                   >
-                    <ImgBox
-                      src={p.images?.[0]}
-                      bg={c.bg}
-                      size={72}
-                      radius={0}
-                    />
+                    <ImgBox src={p.images?.[0]} bg={c.bg} size={72} radius={0} />
                     {p.hot && p.stock > 0 && (
                       <span
                         style={{
@@ -234,9 +225,7 @@ export default function Produse({ ctx }) {
                     >
                       {p.name}
                     </div>
-                    <div
-                      style={{ fontSize: 11, color: "#aaa", marginBottom: 6 }}
-                    >
+                    <div style={{ fontSize: 11, color: "#aaa", marginBottom: 6 }}>
                       {p.unit}
                     </div>
                     <div
@@ -258,13 +247,7 @@ export default function Produse({ ctx }) {
                           showToast={showToast}
                         />
                       ) : (
-                        <span
-                          style={{
-                            fontSize: 11,
-                            color: "#DC2626",
-                            fontWeight: 700,
-                          }}
-                        >
+                        <span style={{ fontSize: 11, color: "#DC2626", fontWeight: 700 }}>
                           Stoc 0
                         </span>
                       )}
