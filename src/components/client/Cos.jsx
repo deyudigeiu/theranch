@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { G, GL, card, btnG, inp } from "../../lib/constants";
+import { G, GL, card, btnG } from "../../lib/constants";
 import ImgBox from "../shared/ImgBox";
 
 export default function Cos({ ctx }) {
@@ -14,9 +13,6 @@ export default function Cos({ ctx }) {
     deliveryConfig,
   } = ctx;
 
-  const [promoInput, setPromoInput] = useState("");
-  const [appliedPromo, setAppliedPromo] = useState(null);
-
   const cartItems = (cart || [])
     .map(({ product_id, qty }) => ({
       p: products.find((pr) => pr.id === product_id),
@@ -25,11 +21,10 @@ export default function Cos({ ctx }) {
     .filter((item) => item.p);
 
   const subtotal = cartItems.reduce((sum, { p, q }) => sum + p.price * q, 0);
-  const promoDisc = 0;
   const shipping = deliveryConfig?.fee ?? settings?.shipping ?? 15;
   const shipFree =
     subtotal >= (deliveryConfig?.freeAt ?? settings?.shipFreeAt ?? 150);
-  const total = subtotal - promoDisc + (shipFree ? 0 : shipping);
+  const total = subtotal + (shipFree ? 0 : shipping);
 
   if (cartItems.length === 0)
     return (
@@ -178,80 +173,6 @@ export default function Cos({ ctx }) {
               </div>
             );
           })}
-        </div>
-
-        {/* Cod promoțional */}
-        <div style={{ ...card, marginBottom: 16 }}>
-          <div
-            style={{
-              fontSize: 13,
-              fontWeight: 700,
-              color: "#2D2D2D",
-              marginBottom: 10,
-            }}
-          >
-            Cod promoțional
-          </div>
-          {appliedPromo ? (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <span
-                style={{
-                  background: "#ECFDF5",
-                  color: "#059669",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  padding: "4px 10px",
-                  borderRadius: 8,
-                }}
-              >
-                ✓ {appliedPromo}
-              </span>
-              <button
-                onClick={() => setAppliedPromo(null)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#DC2626",
-                  fontSize: 12,
-                  cursor: "pointer",
-                  fontWeight: 700,
-                }}
-              >
-                Elimină
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: "flex", gap: 8 }}>
-              <input
-                value={promoInput}
-                onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
-                placeholder="Introdu codul..."
-                style={{ ...inp, flex: 1 }}
-              />
-              <button
-                onClick={() => showToast("Niciun cod activ momentan", "ℹ️")}
-                style={{
-                  background: G,
-                  color: "white",
-                  border: "none",
-                  borderRadius: 14,
-                  padding: "0 16px",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  flexShrink: 0,
-                }}
-              >
-                Aplică
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Sumar */}
