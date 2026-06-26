@@ -397,8 +397,6 @@ export function useStorage() {
     return data;
   };
 
-  // --- Basket subscriptions stored in app_config (no FK constraint issues) ---
-
   const _getBasketSubsRaw = async () => {
     const { data } = await supabase
       .from("app_config")
@@ -482,8 +480,6 @@ export function useStorage() {
         { onConflict: "key" }
       );
   };
-
-  // ---
 
   const getClients = async () => {
     const { data } = await supabase
