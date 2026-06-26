@@ -1,4 +1,4 @@
-import { G, GL, card, btnG } from "../../lib/constants";
+import { G, card, btnG } from "../../lib/constants";
 import ImgBox from "../shared/ImgBox";
 
 export default function Cos({ ctx }) {
@@ -6,7 +6,6 @@ export default function Cos({ ctx }) {
     cart,
     products,
     setCartQty,
-    showToast,
     setPage,
     findCategory,
     settings,
@@ -42,14 +41,7 @@ export default function Cos({ ctx }) {
         <div style={{ fontSize: 18, fontWeight: 800, color: "#2D2D2D" }}>
           Coșul e gol
         </div>
-        <p
-          style={{
-            color: "#aaa",
-            fontSize: 14,
-            textAlign: "center",
-            margin: 0,
-          }}
-        >
+        <p style={{ color: "#aaa", fontSize: 14, textAlign: "center", margin: 0 }}>
           Adaugă produse din magazin
         </p>
         <button
