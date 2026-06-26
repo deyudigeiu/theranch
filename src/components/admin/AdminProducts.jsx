@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { G, GL, card, inp, lbl, btnG, sectHdr } from "../../lib/constants";
+import { G, GL, card, inp, lbl, btnG } from "../../lib/constants";
 import ImgBox from "../shared/ImgBox";
 
 const emptyProduct = {
@@ -401,9 +401,7 @@ export default function AdminProducts({ ctx }) {
             >
               <div style={{ fontSize: 32 }}>{p.images?.[0]}</div>
               <div style={{ flex: 1 }}>
-                <div
-                  style={{ fontWeight: 700, fontSize: 14, color: "#2D2D2D" }}
-                >
+                <div style={{ fontWeight: 700, fontSize: 14, color: "#2D2D2D" }}>
                   {p.name}
                 </div>
                 <div style={{ fontSize: 12, color: "#aaa" }}>
