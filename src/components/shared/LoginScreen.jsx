@@ -27,31 +27,51 @@ export default function LoginScreen({ ctx }) {
 
   return (
     <>
-      <style>{`@keyframes sd{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:translateY(0)}}.t-in{animation:sd .28s cubic-bezier(.34,1.56,.64,1)}`}</style>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          padding: "24px 0 48px",
-          minHeight: 920,
-        }}
-      >
-        <div
-          style={{
-            width: 390,
-            height: 856,
-            background: "#F0EBE0",
-            borderRadius: 46,
-            overflow: "hidden",
-            boxShadow: "0 32px 90px rgba(0,0,0,0.3),0 0 0 9px #bfbcb7",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "40px",
-            boxSizing: "border-box",
-          }}
-        >
+      <style>{`
+        @keyframes sd {
+          from { opacity: 0; transform: translateY(-18px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .login-wrap {
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          padding: 24px 0 48px;
+          min-height: 100vh;
+          background: #e8e2d8;
+        }
+        .login-frame {
+          width: 390px;
+          background: #F0EBE0;
+          border-radius: 46px;
+          overflow: hidden;
+          box-shadow: 0 32px 90px rgba(0,0,0,0.3), 0 0 0 9px #bfbcb7;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 700px;
+          padding: 60px 40px;
+          box-sizing: border-box;
+        }
+        @media (max-width: 500px) {
+          .login-wrap {
+            padding: 0;
+            background: #F0EBE0;
+            align-items: center;
+          }
+          .login-frame {
+            width: 100%;
+            min-height: 100vh;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 60px 28px 40px;
+          }
+        }
+      `}</style>
+
+      <div className="login-wrap">
+        <div className="login-frame">
           <div style={{ fontSize: 64, marginBottom: 24 }}>🌾</div>
           <h1
             style={{
@@ -141,12 +161,11 @@ export default function LoginScreen({ ctx }) {
                   outline: "none",
                   fontFamily: "inherit",
                   marginBottom: 8,
+                  background: "white",
                 }}
               />
               {error && (
-                <p
-                  style={{ color: "#DC2626", fontSize: 12, margin: "0 0 8px" }}
-                >
+                <p style={{ color: "#DC2626", fontSize: 12, margin: "0 0 8px" }}>
                   {error}
                 </p>
               )}
