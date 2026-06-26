@@ -10,8 +10,6 @@ const MODULES = [
   { key: "wishlist", label: "Wishlist clienți" },
   { key: "reviews", label: "Recenzii produse" },
   { key: "cosBaza", label: "Coșul Lunii" },
-  { key: "promoCode", label: "Coduri promoționale" },
-  { key: "preorder", label: "Pre-comandă" },
 ];
 
 export default function AdminContent({ ctx }) {
