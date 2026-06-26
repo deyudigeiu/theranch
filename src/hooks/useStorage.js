@@ -1,6 +1,9 @@
 import { supabase } from "../lib/supabase";
 
-const ADMIN_USER_ID = "05580dfa-fac9-4e8a-84b1-807a56457cba";
+const ADMIN_USER_IDS = [
+  "05580dfa-fac9-4e8a-84b1-807a56457cba",
+  "5a83a3c3-b6e8-4c0a-a63b-ac8336cf1970",
+];
 
 export function useStorage() {
   const getProducts = async () => {
@@ -267,11 +270,13 @@ export function useStorage() {
             .eq("id", item.product_id);
         }
       }
-      await supabase.from("notifications").insert({
-        user_id: ADMIN_USER_ID,
-        type: "order",
-        msg: `Comandă nouă #${id} — ${orderData.total} RON`,
-      });
+      await supabase.from("notifications").insert(
+        ADMIN_USER_IDS.map((uid) => ({
+          user_id: uid,
+          type: "order",
+          msg: `Comandă nouă #${id} — ${orderData.total} RON`,
+        }))
+      );
     }
     return data;
   };
