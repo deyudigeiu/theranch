@@ -17,8 +17,6 @@ const emptyProduct = {
   origin: "",
   hot: false,
   active: true,
-  preorder: false,
-  preorder_date: "",
   bundle: false,
   bundle_items: [],
 };
@@ -309,7 +307,6 @@ export default function AdminProducts({ ctx }) {
             {[
               ["hot", "🔥 Recomandat (apare pe Home)"],
               ["active", "✅ Activ (vizibil în catalog)"],
-              ["preorder", "📅 Pre-comandă"],
             ].map(([field, label]) => (
               <label
                 key={field}
@@ -332,22 +329,6 @@ export default function AdminProducts({ ctx }) {
                 />
               </label>
             ))}
-            {editItem.preorder && (
-              <label style={{ display: "block" }}>
-                <span style={lbl}>Disponibil din</span>
-                <input
-                  type="date"
-                  value={editItem.preorder_date || ""}
-                  onChange={(e) =>
-                    setEditItem((p) => ({
-                      ...p,
-                      preorder_date: e.target.value,
-                    }))
-                  }
-                  style={inp}
-                />
-              </label>
-            )}
           </div>
 
           <button onClick={save} style={btnG()}>
