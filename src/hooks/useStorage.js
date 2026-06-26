@@ -10,7 +10,6 @@ export function useStorage() {
 
   const saveProduct = async (product) => {
     const clean = { ...product };
-    if (!clean.preorder_date) clean.preorder_date = null;
     if (!clean.id) delete clean.id;
 
     if (clean.id) {
@@ -65,7 +64,7 @@ export function useStorage() {
       .from("profiles")
       .select("*")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
     return data;
   };
 
@@ -140,7 +139,7 @@ export function useStorage() {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) return [];
-        const { data: existing } = await supabase
+    const { data: existing } = await supabase
       .from("cart")
       .select("qty")
       .eq("user_id", user.id)
@@ -260,7 +259,7 @@ export function useStorage() {
           .from("products")
           .select("stock")
           .eq("id", item.product_id)
-          .single();
+          .maybeSingle();
         if (prod) {
           await supabase
             .from("products")
@@ -405,7 +404,7 @@ export function useStorage() {
       .from("app_config")
       .select("value")
       .eq("key", "cos_subscriptions")
-      .single();
+      .maybeSingle();
     return data?.value || [];
   };
 
@@ -427,7 +426,7 @@ export function useStorage() {
       .from("profiles")
       .select("name, phone")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
     const current = await _getBasketSubsRaw();
     const exists = current.find((s) => s.user_id === user.id);
     const updated = exists
@@ -503,7 +502,7 @@ export function useStorage() {
       .from("app_config")
       .select("value")
       .eq("key", "blog")
-      .single();
+      .maybeSingle();
     return data?.value || [];
   };
 
