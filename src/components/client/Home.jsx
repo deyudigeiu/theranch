@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { G, GL, BG, sectHdr, card } from "../../lib/constants";
+import { G } from "../../lib/constants";
 import ImgBox from "../shared/ImgBox";
 import QA from "../shared/QA";
 import { SkeletonProductGrid } from "../shared/Skeleton";
@@ -78,8 +78,17 @@ export default function Home({ ctx }) {
     setSubLoading(false);
   };
 
+  const sectHdr = {
+    margin: "0 0 12px 0",
+    fontSize: 11,
+    fontWeight: 800,
+    color: "#aaa",
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+  };
+
   return (
-    <div style={{ paddingBottom: 80 }}>
+    <div style={{ paddingBottom: 80, overflowX: "hidden" }}>
       {/* Banner livrare */}
       <div
         style={{
@@ -97,13 +106,7 @@ export default function Home({ ctx }) {
               : content?.banner_closed || "Comenzi închise"}
           </div>
           {nextDelivery && (
-            <div
-              style={{
-                color: "rgba(255,255,255,.8)",
-                fontSize: 11,
-                marginTop: 2,
-              }}
-            >
+            <div style={{ color: "rgba(255,255,255,.8)", fontSize: 11, marginTop: 2 }}>
               Livrare: {formatDate(nextDelivery)}
             </div>
           )}
@@ -122,7 +125,7 @@ export default function Home({ ctx }) {
 
       {/* Mesaj Denis */}
       {content?.home_message && (
-        <div style={{ margin: "16px 18px 0" }}>
+        <div style={{ margin: "16px 16px 0" }}>
           <div
             style={{
               background: "white",
@@ -137,7 +140,7 @@ export default function Home({ ctx }) {
             <div style={{ fontSize: 36, flexShrink: 0 }}>
               {content.home_photo || "🌾"}
             </div>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div
                 style={{
                   fontSize: 11,
@@ -160,7 +163,7 @@ export default function Home({ ctx }) {
 
       {/* Coșul Lunii */}
       {cosLunii?.active && cosLunii?.items?.length > 0 && (
-        <div style={{ margin: "16px 18px 0" }}>
+        <div style={{ margin: "16px 16px 0" }}>
           <div
             style={{
               background: "white",
@@ -187,12 +190,7 @@ export default function Home({ ctx }) {
                 🛒 Coșul Lunii
               </div>
               <div
-                style={{
-                  fontWeight: 800,
-                  fontSize: 17,
-                  color: "white",
-                  marginBottom: 4,
-                }}
+                style={{ fontWeight: 800, fontSize: 17, color: "white", marginBottom: 4 }}
               >
                 {cosLunii.title}
               </div>
@@ -296,7 +294,7 @@ export default function Home({ ctx }) {
 
       {/* Recomandări din istoric */}
       {lastOrderItems.length > 0 && (
-        <div style={{ padding: "20px 18px 0" }}>
+        <div style={{ padding: "20px 16px 0" }}>
           <p style={sectHdr}>Data trecută ai luat</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {lastOrderItems.map((p) => {
@@ -315,12 +313,15 @@ export default function Home({ ctx }) {
                   }}
                 >
                   <ImgBox src={p.images?.[0]} bg={c.bg} size={44} />
-                  <div style={{ flex: 1 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div
                       style={{
                         fontWeight: 700,
                         fontSize: 13,
                         color: "#2D2D2D",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
                       }}
                     >
                       {p.name}
@@ -343,16 +344,22 @@ export default function Home({ ctx }) {
       )}
 
       {/* Categorii */}
-      <div style={{ padding: "20px 18px 0" }}>
-        <p style={sectHdr}>
+      <div style={{ padding: "20px 0 0" }}>
+        <p style={{ ...sectHdr, paddingLeft: 16 }}>
           {content?.section_categories || "Răsfoiește categorii"}
         </p>
         <div
+          className="home-cats"
           style={{
             display: "flex",
             gap: 10,
             overflowX: "auto",
-            paddingBottom: 8,
+            paddingBottom: 4,
+            paddingLeft: 16,
+            paddingRight: 16,
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            WebkitOverflowScrolling: "touch",
           }}
         >
           {categories.map((c) => (
@@ -381,7 +388,7 @@ export default function Home({ ctx }) {
       </div>
 
       {/* Produse recomandate */}
-      <div style={{ padding: "20px 18px 0" }}>
+      <div style={{ padding: "20px 16px 0" }}>
         <p style={sectHdr}>
           {content?.section_recommended || "Recomandate luna asta"}
         </p>
@@ -428,6 +435,9 @@ export default function Home({ ctx }) {
                         fontWeight: 700,
                         color: "#2D2D2D",
                         marginBottom: 4,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
                       }}
                     >
                       {p.name}
