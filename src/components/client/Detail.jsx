@@ -8,16 +8,13 @@ export default function Detail({ ctx }) {
     selectedProduct: sp,
     cart,
     wishlist,
-    reviews,
     findCategory,
     findProduct,
     addToCart,
     setCartQty,
     toggleWishlist,
-    setNotifyWhenAvailable,
     showToast,
     setPage,
-    storage,
   } = ctx;
 
   const [dQty, setDQty] = useState(1);
@@ -30,7 +27,6 @@ export default function Detail({ ctx }) {
 
   const c = findCategory(sp.cat_id);
   const inWishlist = wishlist?.some((w) => w.product_id === sp.id);
-  const myReview = reviews?.find((r) => r.product_id === sp.id);
   const images = sp.images || ["📦"];
 
   return (
@@ -234,30 +230,6 @@ export default function Detail({ ctx }) {
           </div>
         )}
 
-        {/* Pre-comandă */}
-        {sp.preorder && (
-          <div
-            style={{
-              background: "#EEF2FE",
-              borderRadius: 14,
-              padding: "12px 16px",
-              marginBottom: 12,
-              textAlign: "center",
-            }}
-          >
-            <div style={{ fontSize: 13, color: "#3B4FCC", fontWeight: 600 }}>
-              📅 Disponibil din{" "}
-              {sp.preorder_date
-                ? new Date(sp.preorder_date).toLocaleDateString("ro-RO", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })
-                : "—"}
-            </div>
-          </div>
-        )}
-
         {/* Nutriție */}
         {sp.nutrition && (
           <div style={{ ...card, marginBottom: 12 }}>
@@ -297,30 +269,6 @@ export default function Detail({ ctx }) {
             <p style={{ margin: 0, fontSize: 13, color: "#555" }}>
               🌿 {sp.origin}
             </p>
-          </div>
-        )}
-
-        {/* Recenzia mea */}
-        {myReview && (
-          <div style={{ ...card, marginBottom: 12 }}>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: "#bbb",
-                letterSpacing: 0.5,
-                textTransform: "uppercase",
-                marginBottom: 6,
-              }}
-            >
-              Recenzia ta
-            </div>
-            <div style={{ fontSize: 18 }}>{"⭐".repeat(myReview.rating)}</div>
-            {myReview.text && (
-              <p style={{ margin: "6px 0 0", fontSize: 13, color: "#555" }}>
-                {myReview.text}
-              </p>
-            )}
           </div>
         )}
 
@@ -385,7 +333,6 @@ export default function Detail({ ctx }) {
             <button
               onClick={() => {
                 addToCart(sp.id, dQty);
-                showToast(`${sp.name} adăugat ×${dQty}`);
                 setPage("produse");
               }}
               style={{
@@ -403,9 +350,8 @@ export default function Detail({ ctx }) {
           </>
         ) : (
           <button
-            onClick={async () => {
-              await storage.setNotifyWhenAvailable(sp.id, true);
-              await toggleWishlist(sp.id);
+            onClick={() => {
+              if (!inWishlist) toggleWishlist(sp.id);
               showToast("Te anunțăm când e disponibil!", "🔔");
             }}
             style={{
