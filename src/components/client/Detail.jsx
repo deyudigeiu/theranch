@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { G, GL, BG, card, btnG } from "../../lib/constants";
+import { G, GL, card, btnG } from "../../lib/constants";
 import ImgBox from "../shared/ImgBox";
-import QA from "../shared/QA";
 
 export default function Detail({ ctx }) {
   const {
     selectedProduct: sp,
-    cart,
     wishlist,
     findCategory,
     findProduct,
@@ -179,14 +177,7 @@ export default function Detail({ ctx }) {
         {/* Descriere */}
         {sp.description && (
           <div style={{ ...card, marginBottom: 12 }}>
-            <p
-              style={{
-                margin: 0,
-                fontSize: 14,
-                color: "#555",
-                lineHeight: 1.6,
-              }}
-            >
+            <p style={{ margin: 0, fontSize: 14, color: "#555", lineHeight: 1.6 }}>
               {sp.description}
             </p>
           </div>
