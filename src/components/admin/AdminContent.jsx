@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { G, GL, card, inp, lbl, btnG, sectHdr } from "../../lib/constants";
+import { G, card, inp, lbl, btnG, sectHdr } from "../../lib/constants";
 
 const MODULES = [
   { key: "blog", label: "Blog" },
@@ -30,15 +30,9 @@ export default function AdminContent({ ctx }) {
   const [welcome, setWelcome] = useState(welcomeMsg || "");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (modules) setMods(modules);
-  }, [modules]);
-  useEffect(() => {
-    if (bannerText) setBanner(bannerText);
-  }, [bannerText]);
-  useEffect(() => {
-    if (welcomeMsg) setWelcome(welcomeMsg);
-  }, [welcomeMsg]);
+  useEffect(() => { if (modules) setMods(modules); }, [modules]);
+  useEffect(() => { if (bannerText) setBanner(bannerText); }, [bannerText]);
+  useEffect(() => { if (welcomeMsg) setWelcome(welcomeMsg); }, [welcomeMsg]);
 
   const toggleModule = (key) => {
     setMods((m) => ({ ...m, [key]: !m[key] }));
@@ -88,7 +82,6 @@ export default function AdminContent({ ctx }) {
       </div>
 
       <div style={{ padding: "16px 18px 0" }}>
-        {/* ── TEXTE ── */}
         <p style={sectHdr}>Texte afișate clienților</p>
 
         <label style={{ display: "block", marginBottom: 14 }}>
@@ -113,7 +106,6 @@ export default function AdminContent({ ctx }) {
           />
         </label>
 
-        {/* ── MODULE ── */}
         <p style={sectHdr}>Module active</p>
         <div style={{ ...card, padding: "6px 16px" }}>
           {MODULES.map(({ key, label }, i) => (
@@ -160,7 +152,6 @@ export default function AdminContent({ ctx }) {
           ))}
         </div>
 
-        {/* ── PREVIEW ── */}
         {(!mods.blog || !mods.gallery || !mods.live) && (
           <div
             style={{
@@ -182,9 +173,7 @@ export default function AdminContent({ ctx }) {
         <button
           onClick={saveAll}
           disabled={saving}
-          style={{
-            ...btnG({ marginTop: 20, opacity: saving ? 0.7 : 1 }),
-          }}
+          style={{ ...btnG({ marginTop: 20, opacity: saving ? 0.7 : 1 }) }}
         >
           {saving ? "Se salvează..." : "Salvează tot"}
         </button>
