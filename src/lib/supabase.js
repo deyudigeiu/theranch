@@ -5,6 +5,10 @@ const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+const ADMIN_EMAILS = [
+  "andrei.spataru2391@gmail.com",
+  "poteras_denis@yahoo.com",
+];
+
 export const isAdmin = (session) =>
-  session?.user?.email ===
-  (process.env.REACT_APP_ADMIN_EMAIL || "andrei.spataru2391@gmail.com");
+  ADMIN_EMAILS.includes(session?.user?.email);
