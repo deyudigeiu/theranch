@@ -61,7 +61,6 @@ export default function App() {
     });
     return { error };
   };
-
   const signOut = async () => {
     await supabase.auth.signOut();
   };
@@ -173,34 +172,6 @@ export default function App() {
     })();
   }, [session]);
 
-  useEffect(() => {
-    const channel = supabase
-      .channel("products-realtime")
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "products" },
-        (payload) => {
-          setProducts((prev) =>
-            prev.map((p) =>
-              p.id === payload.new.id ? { ...p, ...payload.new } : p
-            )
-          );
-        }
-      )
-      .subscribe();
-    return () => supabase.removeChannel(channel);
-  }, []);
-
-  const findProduct = (id) => products.find((p) => p.id === id);
-  const findCategory = (id) =>
-    categories.find((c) => c.id === id) || {
-      ac: "#666",
-      bg: "#f5f5f5",
-      lt: "#eee",
-      name: "—",
-      emoji: "📦",
-    };
-
   const addToCart = async (productOrId, qty = 1) => {
     if (settings?.shopOpen === false) {
       showToast("Magazinul este momentan închis", "🔒");
@@ -211,27 +182,14 @@ export default function App() {
         ? products.find((p) => p.id === productOrId)
         : productOrId;
     if (!product) return;
-    const currentQty = cart.find((i) => i.product_id === product.id)?.qty || 0;
-    if (product.stock != null && currentQty + qty > product.stock) {
-      showToast(`Stoc insuficient — doar ${product.stock} disponibil`, "⚠️");
-      return;
-    }
-    await storage.addToCart(product.id, qty);
-    setCart((prev) => {
-      const existing = prev.find((i) => i.product_id === product.id);
-      if (existing) {
-        return prev.map((i) =>
-          i.product_id === product.id ? { ...i, qty: i.qty + qty } : i
-        );
-      }
-      return [...prev, { product_id: product.id, qty }];
-    });
+    const updated = await storage.addToCart(product.id, qty);
+    if (updated) setCart(updated);
     showToast(`${product.name} adăugat în coș`);
   };
 
   const removeFromCart = async (productId) => {
-    await storage.removeFromCart(productId);
-    setCart((prev) => prev.filter((i) => i.product_id !== productId));
+    const updated = await storage.removeFromCart(productId);
+    if (updated !== undefined) setCart(updated);
   };
 
   const updateCartQty = async (productId, qty) => {
@@ -240,18 +198,8 @@ export default function App() {
       return;
     }
     if (qty <= 0) return removeFromCart(productId);
-    const product = findProduct(productId);
-    if (product && product.stock != null && qty > product.stock) {
-      showToast(
-        `Stoc maxim disponibil: ${product.stock} ${product.unit || "buc"}`,
-        "⚠️"
-      );
-      return;
-    }
-    await storage.updateCartQty(productId, qty);
-    setCart((prev) =>
-      prev.map((i) => (i.product_id === productId ? { ...i, qty } : i))
-    );
+    const updated = await storage.updateCartQty(productId, qty);
+    if (updated) setCart(updated);
   };
 
   const clearCart = async () => {
@@ -327,11 +275,37 @@ export default function App() {
     return () => clearInterval(id);
   }, [cutoff]);
 
+  useEffect(() => {
+    const channel = supabase
+      .channel("products-realtime")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "products" },
+        (payload) => {
+          setProducts((prev) =>
+            prev.map((p) =>
+              p.id === payload.new.id ? { ...p, ...payload.new } : p
+            )
+          );
+        }
+      )
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, []);
+
+  const findCategory = (id) =>
+    categories.find((c) => c.id === id) || {
+      ac: "#666",
+      bg: "#f5f5f5",
+      lt: "#eee",
+      name: "—",
+      emoji: "📦",
+    };
+  const findProduct = (id) => products.find((p) => p.id === id);
   const openProduct = (p) => {
     setSelectedProduct(p);
     setPage("detail");
   };
-
   const setCartQty = updateCartQty;
 
   const content = {
