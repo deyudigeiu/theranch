@@ -222,23 +222,6 @@ export default function Produse({ ctx }) {
                         📦 Pachet
                       </span>
                     )}
-                    {p.preorder && (
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: 8,
-                          right: 8,
-                          background: "#EEF2FE",
-                          color: "#3B4FCC",
-                          fontSize: 9,
-                          fontWeight: 700,
-                          padding: "2px 6px",
-                          borderRadius: 6,
-                        }}
-                      >
-                        📅 Pre-comandă
-                      </span>
-                    )}
                   </div>
                   <div style={{ padding: "10px 12px 12px" }}>
                     <div
