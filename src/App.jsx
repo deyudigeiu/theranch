@@ -185,7 +185,11 @@ export default function App() {
     if (!product) return;
     const updated = await storage.addToCart(product.id, qty);
     if (updated) setCart(updated);
-    showToast(`${product.name} adăugat în coș`);
+    if (product.stock === 0) {
+      showToast(`${product.name} pre-comandat!`, "⏳");
+    } else {
+      showToast(`${product.name} adăugat în coș`);
+    }
   };
 
   const removeFromCart = async (productId) => {
@@ -224,7 +228,17 @@ export default function App() {
       showToast("Magazinul este momentan închis", "🔒");
       return null;
     }
-    for (const item of cart) {
+
+    const regularItems = cart.filter((item) => {
+      const p = findProduct(item.product_id);
+      return p && (p.stock == null || p.stock > 0);
+    });
+    const preorderItems = cart.filter((item) => {
+      const p = findProduct(item.product_id);
+      return p && p.stock != null && p.stock === 0;
+    });
+
+    for (const item of regularItems) {
       const p = findProduct(item.product_id);
       if (p && p.stock != null && p.stock < item.qty) {
         showToast(
@@ -234,9 +248,36 @@ export default function App() {
         return null;
       }
     }
-    const order = await storage.createOrder({ ...orderData, items: cart });
-    if (order) {
-      setLastOrderId(order.id);
+
+    const calcTotal = (items) =>
+      items.reduce((sum, item) => {
+        const p = findProduct(item.product_id);
+        return sum + (p ? p.price * item.qty : 0);
+      }, 0);
+
+    let lastOrder = null;
+
+    if (regularItems.length > 0) {
+      const order = await storage.createOrder({
+        ...orderData,
+        items: regularItems,
+        total: calcTotal(regularItems),
+      });
+      if (order) lastOrder = order;
+    }
+
+    if (preorderItems.length > 0) {
+      const preorder = await storage.createOrder({
+        ...orderData,
+        items: preorderItems,
+        total: calcTotal(preorderItems),
+        status: "Pre-comandă",
+      });
+      if (preorder && !lastOrder) lastOrder = preorder;
+    }
+
+    if (lastOrder) {
+      setLastOrderId(lastOrder.id);
       await clearCart();
       const [refreshedOrders, refreshedProducts] = await Promise.all([
         storage.getOrders(!admin),
@@ -246,7 +287,7 @@ export default function App() {
       setProducts(refreshedProducts || []);
       setPage("confirmare");
     }
-    return order;
+    return lastOrder;
   };
 
   const updateProfile = async (data) => {
