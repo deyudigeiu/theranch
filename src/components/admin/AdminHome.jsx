@@ -20,6 +20,7 @@ export default function AdminHome({ ctx }) {
   }, []);
 
   const newOrders = orders.filter((o) => o.status === "Nouă");
+  const preOrders = orders.filter((o) => o.status === "Pre-comandă");
   const monthlyTotal = orders.reduce((s, o) => s + (o.total || 0), 0);
   const lowStock = products
     .filter((p) => p.active && p.stock < 5)
@@ -42,6 +43,18 @@ export default function AdminHome({ ctx }) {
           month: "long",
         })
       : "—";
+
+  const hasUrgent = newOrders.length > 0 || preOrders.length > 0;
+  const cardBg = newOrders.length > 0
+    ? "#FEF2F2"
+    : preOrders.length > 0
+    ? "#FFFBEB"
+    : "white";
+  const cardBorder = newOrders.length > 0
+    ? "1.5px solid #FCA5A5"
+    : preOrders.length > 0
+    ? "1.5px solid #FCD34D"
+    : "none";
 
   const modules = [
     { id: "orders", e: "📋", t: "Comenzi", c: `${newOrders.length} noi` },
@@ -71,23 +84,24 @@ export default function AdminHome({ ctx }) {
       </div>
 
       <div style={{ padding: "16px 18px 8px" }}>
-        {/* Comenzi noi + total */}
+        {/* Comenzi noi + pre-comenzi + total */}
         <div
           style={{
             ...card,
             marginBottom: 10,
-            background: newOrders.length > 0 ? "#FEF2F2" : "white",
-            border: newOrders.length > 0 ? "1.5px solid #FCA5A5" : "none",
+            background: cardBg,
+            border: cardBorder,
           }}
         >
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: "flex-start",
               marginBottom: 8,
             }}
           >
+            {/* Comenzi noi */}
             <div>
               <div
                 style={{
@@ -110,6 +124,32 @@ export default function AdminHome({ ctx }) {
                 {newOrders.length}
               </div>
             </div>
+
+            {/* Pre-comenzi */}
+            <div style={{ textAlign: "center" }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: "#aaa",
+                  textTransform: "uppercase",
+                  marginBottom: 2,
+                }}
+              >
+                Pre-comenzi
+              </div>
+              <div
+                style={{
+                  fontSize: 28,
+                  fontWeight: 900,
+                  color: preOrders.length > 0 ? "#B45309" : "#ccc",
+                }}
+              >
+                {preOrders.length}
+              </div>
+            </div>
+
+            {/* Total luna */}
             <div style={{ textAlign: "right" }}>
               <div
                 style={{
@@ -127,6 +167,7 @@ export default function AdminHome({ ctx }) {
               </div>
             </div>
           </div>
+
           <div style={{ display: "flex", gap: 6 }}>
             <div
               style={{
@@ -157,6 +198,7 @@ export default function AdminHome({ ctx }) {
               </span>
             </div>
           </div>
+
           {newOrders.length > 0 && (
             <button
               onClick={() => setAdminPage("orders")}
@@ -174,6 +216,26 @@ export default function AdminHome({ ctx }) {
               }}
             >
               📋 Vezi cele {newOrders.length} comenzi noi →
+            </button>
+          )}
+
+          {preOrders.length > 0 && (
+            <button
+              onClick={() => setAdminPage("orders")}
+              style={{
+                width: "100%",
+                marginTop: newOrders.length > 0 ? 6 : 10,
+                background: "#FEF3C7",
+                color: "#B45309",
+                border: "none",
+                borderRadius: 12,
+                padding: "10px",
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              ⏳ {preOrders.length} pre-{preOrders.length === 1 ? "comandă" : "comenzi"} în așteptare →
             </button>
           )}
         </div>
