@@ -412,7 +412,7 @@ export default function App() {
       >
         <div style={{ fontSize: 44 }}>🌿</div>
         <div style={{ fontSize: 13, color: "#888", fontWeight: 600 }}>
-          Drăgăneasa Ranch
+          Ferma Drăgăneasa
         </div>
       </div>
     );
