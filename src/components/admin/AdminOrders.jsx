@@ -7,6 +7,7 @@ export default function AdminOrders({ ctx }) {
 
   const [filter, setFilter] = useState("toate");
   const [expandedId, setExpandedId] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   const statusOptions = [
     "toate",
@@ -26,6 +27,18 @@ export default function AdminOrders({ ctx }) {
       prev.map((o) => (o.id === orderId ? { ...o, status } : o))
     );
     showToast(`Comandă → ${status}`, "✓");
+  };
+
+  const deleteOrder = async (orderId) => {
+    const ok = await storage.deleteOrder(orderId);
+    if (ok) {
+      setOrders((prev) => prev.filter((o) => o.id !== orderId));
+      setExpandedId(null);
+      setConfirmDelete(null);
+      showToast("Comandă ștearsă", "🗑");
+    } else {
+      showToast("Eroare la ștergere", "❌");
+    }
   };
 
   const formatDate = (d) =>
@@ -123,7 +136,10 @@ export default function AdminOrders({ ctx }) {
               <div key={o.id} style={card}>
                 {/* Header */}
                 <div
-                  onClick={() => setExpandedId(expanded ? null : o.id)}
+                  onClick={() => {
+                    setExpandedId(expanded ? null : o.id);
+                    setConfirmDelete(null);
+                  }}
                   style={{ cursor: "pointer" }}
                 >
                   <div
@@ -243,13 +259,6 @@ export default function AdminOrders({ ctx }) {
                         📝 {o.note}
                       </div>
                     )}
-                    {o.promo && (
-                      <div
-                        style={{ fontSize: 12, color: "#aaa", marginBottom: 4 }}
-                      >
-                        🎉 Promo: {o.promo}
-                      </div>
-                    )}
 
                     {/* Notă client */}
                     <textarea
@@ -311,6 +320,68 @@ export default function AdminOrders({ ctx }) {
                           {s}
                         </button>
                       ))}
+                    </div>
+
+                    {/* Șterge comanda */}
+                    <div
+                      style={{
+                        marginTop: 16,
+                        paddingTop: 12,
+                        borderTop: "1px solid #f0f0f0",
+                      }}
+                    >
+                      {confirmDelete === o.id ? (
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <button
+                            onClick={() => deleteOrder(o.id)}
+                            style={{
+                              flex: 1,
+                              background: "#DC2626",
+                              color: "white",
+                              border: "none",
+                              borderRadius: 10,
+                              padding: "10px",
+                              fontSize: 13,
+                              fontWeight: 700,
+                              cursor: "pointer",
+                            }}
+                          >
+                            Da, șterge
+                          </button>
+                          <button
+                            onClick={() => setConfirmDelete(null)}
+                            style={{
+                              flex: 1,
+                              background: "#f5f5f5",
+                              color: "#555",
+                              border: "none",
+                              borderRadius: 10,
+                              padding: "10px",
+                              fontSize: 13,
+                              fontWeight: 700,
+                              cursor: "pointer",
+                            }}
+                          >
+                            Anulează
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmDelete(o.id)}
+                          style={{
+                            background: "#FEE2E2",
+                            color: "#DC2626",
+                            border: "none",
+                            borderRadius: 10,
+                            padding: "8px 14px",
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: "pointer",
+                          }}
+                        >
+                          × Șterge comanda
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
