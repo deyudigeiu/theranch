@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { G, GL, card, inp, lbl, btnG, sectHdr } from "../../lib/constants";
-import { formatCountdown } from "../../hooks/useDelivery";
 
 export default function AdminSettings({ ctx }) {
   const {
@@ -11,14 +10,12 @@ export default function AdminSettings({ ctx }) {
     setDeliveryConfig,
     nextDelivery,
     cutoff,
-    slots,
     showToast,
     setAdminPage,
   } = ctx;
 
   const [gen, setGen] = useState(settings || {});
   const [del, setDel] = useState(deliveryConfig || {});
-  const [newSlot, setNewSlot] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -42,16 +39,6 @@ export default function AdminSettings({ ctx }) {
     setDeliveryConfig(del);
     showToast("Livrare salvată", "✓");
     setSaving(false);
-  };
-
-  const addSlot = () => {
-    if (!newSlot.trim()) return;
-    setDel((d) => ({ ...d, slots: [...(d.slots || []), newSlot.trim()] }));
-    setNewSlot("");
-  };
-
-  const removeSlot = (i) => {
-    setDel((d) => ({ ...d, slots: d.slots.filter((_, idx) => idx !== i) }));
   };
 
   const formatDate = (d) =>
@@ -201,7 +188,9 @@ export default function AdminSettings({ ctx }) {
               {WEEKS.map((w) => (
                 <button
                   key={w.v}
-                  onClick={() => setDel((d) => ({ ...d, preferred_week: w.v }))}
+                  onClick={() =>
+                    setDel((d) => ({ ...d, preferred_week: w.v }))
+                  }
                   style={{
                     flex: 1,
                     padding: "8px",
@@ -327,77 +316,6 @@ export default function AdminSettings({ ctx }) {
           )}
         </div>
 
-        {/* Sloturi orare */}
-        <div style={{ marginBottom: 16 }}>
-          <span style={lbl}>Sloturi orare (pentru livrare la domiciliu)</span>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 6,
-              marginBottom: 8,
-            }}
-          >
-            {(del.slots || []).map((slot, i) => (
-              <div
-                key={i}
-                style={{ display: "flex", alignItems: "center", gap: 8 }}
-              >
-                <div
-                  style={{
-                    flex: 1,
-                    background: "white",
-                    border: "1.5px solid #e8e8e8",
-                    borderRadius: 10,
-                    padding: "8px 12px",
-                    fontSize: 13,
-                  }}
-                >
-                  {slot}
-                </div>
-                <button
-                  onClick={() => removeSlot(i)}
-                  style={{
-                    background: "#FEE2E2",
-                    color: "#DC2626",
-                    border: "none",
-                    borderRadius: 8,
-                    padding: "8px 12px",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <input
-              value={newSlot}
-              onChange={(e) => setNewSlot(e.target.value)}
-              placeholder="ex: 10:00-12:00"
-              style={{ ...inp, flex: 1 }}
-            />
-            <button
-              onClick={addSlot}
-              style={{
-                background: GL,
-                color: G,
-                border: "none",
-                borderRadius: 14,
-                padding: "0 14px",
-                fontSize: 13,
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-            >
-              +
-            </button>
-          </div>
-        </div>
-
         <button
           onClick={saveDelivery}
           disabled={saving}
@@ -424,7 +342,9 @@ export default function AdminSettings({ ctx }) {
           <span style={lbl}>Tagline</span>
           <input
             value={gen.tagline || ""}
-            onChange={(e) => setGen((g) => ({ ...g, tagline: e.target.value }))}
+            onChange={(e) =>
+              setGen((g) => ({ ...g, tagline: e.target.value }))
+            }
             style={inp}
           />
         </label>
