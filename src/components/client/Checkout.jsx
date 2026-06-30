@@ -35,6 +35,13 @@ export default function Checkout({ ctx }) {
     }))
     .filter((item) => item.p);
 
+  const regularItems = cartItems.filter(
+    ({ p }) => p.stock == null || p.stock > 0
+  );
+  const preorderItems = cartItems.filter(
+    ({ p }) => p.stock != null && p.stock === 0
+  );
+
   const subtotal = cartItems.reduce((sum, { p, q }) => sum + p.price * q, 0);
   const total = subtotal;
 
@@ -101,7 +108,7 @@ export default function Checkout({ ctx }) {
       </div>
 
       <div style={{ padding: "16px 18px 0" }}>
-        {/* Pickup / Livrare info */}
+        {/* Pickup info sau livrare */}
         {!homeDelivery ? (
           <div
             style={{
@@ -112,19 +119,22 @@ export default function Checkout({ ctx }) {
             }}
           >
             <div
-              style={{ fontSize: 13, color: G, fontWeight: 700, marginBottom: 6 }}
+              style={{
+                fontSize: 13,
+                color: G,
+                fontWeight: 700,
+                marginBottom: 6,
+              }}
             >
               📍 Ridicare din Calderon
             </div>
             {nextDelivery && (
               <div style={{ fontSize: 13, color: "#2D2D2D", marginBottom: 4 }}>
-                Data:{" "}
-                <strong>{formatDate(nextDelivery)}</strong>
+                Data: <strong>{formatDate(nextDelivery)}</strong>
               </div>
             )}
             <div style={{ fontSize: 13, color: "#2D2D2D", marginBottom: 4 }}>
-              Program:{" "}
-              <strong>Luni–Duminică, 12:00–20:00</strong>
+              Program: <strong>Luni–Duminică, 12:00–20:00</strong>
             </div>
             <div style={{ fontSize: 12, color: "#777" }}>{PICKUP_ADDR}</div>
           </div>
@@ -184,7 +194,11 @@ export default function Checkout({ ctx }) {
               <textarea
                 value={del.addr}
                 onChange={(e) => {
-                  setDel((d) => ({ ...d, addr: e.target.value, addrId: null }));
+                  setDel((d) => ({
+                    ...d,
+                    addr: e.target.value,
+                    addrId: null,
+                  }));
                   setErrors((err) => ({ ...err, addr: "" }));
                 }}
                 placeholder="Str. Exemplu nr. 10, Sector 1, București"
@@ -233,9 +247,7 @@ export default function Checkout({ ctx }) {
                   ))}
                 </div>
                 {errors.slot && (
-                  <p
-                    style={{ color: "#DC2626", fontSize: 12, margin: "4px 0 0" }}
-                  >
+                  <p style={{ color: "#DC2626", fontSize: 12, margin: "4px 0 0" }}>
                     {errors.slot}
                   </p>
                 )}
@@ -249,7 +261,10 @@ export default function Checkout({ ctx }) {
           <span style={lbl}>Metodă de plată</span>
           <div style={{ display: "flex", gap: 8 }}>
             {[
-              ["cash", homeDelivery ? "💵 Cash la livrare" : "💵 Cash la ridicare"],
+              [
+                "cash",
+                homeDelivery ? "💵 Cash la livrare" : "💵 Cash la ridicare",
+              ],
               ["transfer", "🏦 Transfer bancar"],
             ].map(([val, label]) => (
               <button
@@ -295,24 +310,91 @@ export default function Checkout({ ctx }) {
           >
             Sumar
           </div>
-          {cartItems.map(({ p, q }) => (
-            <div
-              key={p.id}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: 6,
-                fontSize: 13,
-                color: "#555",
-              }}
-            >
-              <span>
-                {p.name} × {q}
-              </span>
-              <span style={{ fontWeight: 600 }}>{p.price * q} RON</span>
-            </div>
-          ))}
-          <div style={{ height: 1, background: "#f0f0f0", margin: "8px 0" }} />
+
+          {regularItems.length > 0 && (
+            <>
+              {preorderItems.length > 0 && (
+                <div
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 800,
+                    color: "#aaa",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                    marginBottom: 6,
+                  }}
+                >
+                  Disponibile acum
+                </div>
+              )}
+              {regularItems.map(({ p, q }) => (
+                <div
+                  key={p.id}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 6,
+                    fontSize: 13,
+                    color: "#555",
+                  }}
+                >
+                  <span>
+                    {p.name} × {q}
+                  </span>
+                  <span style={{ fontWeight: 600 }}>{p.price * q} RON</span>
+                </div>
+              ))}
+            </>
+          )}
+
+          {preorderItems.length > 0 && (
+            <>
+              <div
+                style={{
+                  fontSize: 10,
+                  fontWeight: 800,
+                  color: "#B45309",
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                  marginBottom: 6,
+                  marginTop: regularItems.length > 0 ? 10 : 0,
+                }}
+              >
+                ⏳ Pre-comandate
+              </div>
+              {preorderItems.map(({ p, q }) => (
+                <div
+                  key={p.id}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 6,
+                    fontSize: 13,
+                    color: "#555",
+                  }}
+                >
+                  <span>
+                    {p.name} × {q}
+                  </span>
+                  <span style={{ fontWeight: 600 }}>{p.price * q} RON</span>
+                </div>
+              ))}
+              <div
+                style={{
+                  background: "#FEF3C7",
+                  borderRadius: 8,
+                  padding: "8px 10px",
+                  marginTop: 6,
+                  fontSize: 11,
+                  color: "#92400E",
+                }}
+              >
+                Livrate imediat ce apar în stoc. Plata se face integral acum.
+              </div>
+            </>
+          )}
+
+          <div style={{ height: 1, background: "#f0f0f0", margin: "10px 0 8px" }} />
           <div
             style={{
               display: "flex",
