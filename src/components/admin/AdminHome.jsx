@@ -56,18 +56,6 @@ export default function AdminHome({ ctx }) {
     ? "1.5px solid #FCD34D"
     : "none";
 
-  const modules = [
-    { id: "orders", e: "📋", t: "Comenzi", c: `${newOrders.length} noi` },
-    { id: "products", e: "📦", t: "Produse", c: `${products.length} total` },
-    { id: "clients", e: "👥", t: "Clienți", c: `${clients.length} total` },
-    { id: "deliveryList", e: "🚚", t: "Listă livrare", c: "generează" },
-    { id: "cosBaza", e: "🛒", t: "Coșul Lunii", c: "editare" },
-    { id: "broadcast", e: "📢", t: "Broadcast", c: "WhatsApp" },
-    { id: "analytics", e: "📊", t: "Analytics", c: "statistici" },
-    { id: "content", e: "✏️", t: "Conținut", c: "texte & module" },
-    { id: "settings", e: "⚙️", t: "Setări", c: "general" },
-    { id: "about", e: "🌾", t: "Despre", c: "editare" },
-  ];
 
   return (
     <div style={{ paddingBottom: 80 }}>
@@ -362,38 +350,6 @@ export default function AdminHome({ ctx }) {
           </div>
         )}
 
-        {/* Grid module */}
-        <p style={sectHdr}>Administrare</p>
-        <div
-          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}
-        >
-          {modules.map((m) => (
-            <button
-              key={m.id}
-              onClick={() => setAdminPage(m.id)}
-              style={{
-                ...card,
-                padding: 14,
-                textAlign: "left",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              <div style={{ fontSize: 26, marginBottom: 6 }}>{m.e}</div>
-              <div
-                style={{
-                  fontWeight: 700,
-                  fontSize: 13,
-                  color: "#2D2D2D",
-                  marginBottom: 2,
-                }}
-              >
-                {m.t}
-              </div>
-              <div style={{ color: "#aaa", fontSize: 11 }}>{m.c}</div>
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   );
