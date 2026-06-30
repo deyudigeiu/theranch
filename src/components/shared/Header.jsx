@@ -90,7 +90,7 @@ export default function Header({ ctx }) {
             marginTop: 1,
           }}
         >
-          Ranch
+          Ferma
         </div>
       </div>
 
