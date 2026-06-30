@@ -1,32 +1,44 @@
 import { useState } from "react";
-import { G, GL, card, SC, inp } from "../../lib/constants";
+import { G, GL, card, SC } from "../../lib/constants";
+
+const statusOptions = [
+  "Nouă",
+  "Confirmată",
+  "Pre-comandă",
+  "Stoc disponibil",
+  "În livrare",
+  "Livrată",
+  "Anulată",
+];
 
 export default function AdminOrders({ ctx }) {
-  const { orders, setOrders, storage, showToast, setAdminPage, findProduct } =
-    ctx;
+  const { orders, setOrders, storage, showToast, findProduct, settings } = ctx;
 
-  const [filter, setFilter] = useState("toate");
   const [expandedId, setExpandedId] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [updatingId, setUpdatingId] = useState(null);
 
-  const statusOptions = [
-    "toate",
-    "Nouă",
-    "În procesare",
-    "Pregătită",
-    "Livrată",
-    "Anulată",
-  ];
+  const phone = settings?.whatsapp?.replace(/\s/g, "") || "";
 
-  const filtered =
-    filter === "toate" ? orders : orders.filter((o) => o.status === filter);
+  const formatDate = (d) =>
+    d
+      ? new Date(d).toLocaleDateString("ro-RO", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "";
 
   const updateStatus = async (orderId, status) => {
+    setUpdatingId(orderId);
     await storage.updateOrderStatus(orderId, status);
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status } : o))
     );
-    showToast(`Comandă → ${status}`, "✓");
+    setUpdatingId(null);
+    showToast(`Status actualizat: ${status}`, "✓");
   };
 
   const deleteOrder = async (orderId) => {
@@ -35,109 +47,61 @@ export default function AdminOrders({ ctx }) {
       setOrders((prev) => prev.filter((o) => o.id !== orderId));
       setExpandedId(null);
       setConfirmDelete(null);
-      showToast("Comandă ștearsă", "🗑");
+      showToast("Comandă ștearsă", "✓");
     } else {
       showToast("Eroare la ștergere", "❌");
     }
   };
 
-  const formatDate = (d) =>
-    d
-      ? new Date(d).toLocaleDateString("ro-RO", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        })
-      : "";
+  if (orders.length === 0)
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "80px 24px",
+          gap: 16,
+        }}
+      >
+        <div style={{ fontSize: 64 }}>📋</div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: "#2D2D2D" }}>
+          Nicio comandă
+        </div>
+      </div>
+    );
 
   return (
     <div style={{ paddingBottom: 80 }}>
-      <div
-        style={{
-          padding: "14px 18px 0",
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-        }}
-      >
-        <button
-          onClick={() => setAdminPage("dash")}
+      <div style={{ padding: "16px 18px 0" }}>
+        <h2
           style={{
-            background: "none",
-            border: "none",
-            color: G,
-            fontSize: 15,
-            cursor: "pointer",
-            fontWeight: 600,
-            padding: 0,
+            margin: "0 0 16px",
+            fontSize: 18,
+            fontWeight: 800,
+            color: "#2D2D2D",
           }}
         >
-          ‹ Înapoi
-        </button>
-        <span style={{ fontWeight: 800, fontSize: 16, color: "#2D2D2D" }}>
-          Comenzi ({filtered.length})
-        </span>
-      </div>
+          Comenzi ({orders.length})
+        </h2>
 
-      {/* Filtre status */}
-      <div
-        style={{
-          padding: "12px 18px 4px",
-          display: "flex",
-          gap: 6,
-          overflowX: "auto",
-        }}
-      >
-        {statusOptions.map((s) => (
-          <button
-            key={s}
-            onClick={() => setFilter(s)}
-            style={{
-              background: filter === s ? G : "white",
-              color: filter === s ? "white" : "#555",
-              border: filter === s ? "none" : "1.5px solid #e8e8e8",
-              borderRadius: 20,
-              padding: "6px 12px",
-              fontSize: 11,
-              fontWeight: 700,
-              cursor: "pointer",
-              flexShrink: 0,
-            }}
-          >
-            {s}
-          </button>
-        ))}
-      </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {orders.map((o) => {
+            const isExpanded = expandedId === o.id;
+            const isPreorder = o.status === "Pre-comandă";
+            const sc = isPreorder
+              ? { bg: "#FEF3C7", c: "#B45309" }
+              : SC?.[o.status] || { bg: "#f5f5f5", c: "#888" };
+            const clientName =
+              o.profiles?.name || o.profiles?.phone || o.user_id?.slice(0, 8);
 
-      <div
-        style={{
-          padding: "12px 18px 0",
-          display: "flex",
-          flexDirection: "column",
-          gap: 10,
-        }}
-      >
-        {filtered.length === 0 ? (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "48px 0",
-              color: "#bbb",
-              fontSize: 14,
-            }}
-          >
-            Nicio comandă
-          </div>
-        ) : (
-          filtered.map((o) => {
-            const sc = SC?.[o.status] || { bg: "#f5f5f5", c: "#888" };
-            const expanded = expandedId === o.id;
             return (
               <div key={o.id} style={card}>
-                {/* Header */}
+                {/* Header - click to expand */}
                 <div
                   onClick={() => {
-                    setExpandedId(expanded ? null : o.id);
+                    setExpandedId(isExpanded ? null : o.id);
                     setConfirmDelete(null);
                   }}
                   style={{ cursor: "pointer" }}
@@ -146,65 +110,114 @@ export default function AdminOrders({ ctx }) {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center",
+                      alignItems: "flex-start",
                       marginBottom: 6,
                     }}
                   >
+                    <div>
+                      <div
+                        style={{
+                          fontWeight: 800,
+                          fontSize: 14,
+                          color: "#2D2D2D",
+                        }}
+                      >
+                        #{o.id}
+                      </div>
+                      {clientName && (
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: "#777",
+                            marginTop: 2,
+                          }}
+                        >
+                          {clientName}
+                        </div>
+                      )}
+                      <div
+                        style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}
+                      >
+                        {formatDate(o.created_at)}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <span
+                        style={{
+                          background: sc.bg,
+                          color: sc.c,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          padding: "4px 10px",
+                          borderRadius: 8,
+                          display: "block",
+                          marginBottom: 4,
+                        }}
+                      >
+                        {o.status}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 15,
+                          fontWeight: 800,
+                          color: G,
+                        }}
+                      >
+                        {o.total} RON
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Preview produse (collapsed) */}
+                  {!isExpanded && (
                     <div
                       style={{
-                        fontWeight: 800,
-                        fontSize: 14,
-                        color: "#2D2D2D",
+                        fontSize: 12,
+                        color: "#aaa",
+                        marginTop: 4,
                       }}
                     >
-                      #{o.id}
-                    </div>
-                    <span
-                      style={{
-                        background: sc.bg,
-                        color: sc.c,
-                        fontSize: 11,
-                        fontWeight: 700,
-                        padding: "3px 10px",
-                        borderRadius: 8,
-                      }}
-                    >
-                      {o.status}
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      fontSize: 13,
-                    }}
-                  >
-                    <span style={{ color: "#aaa" }}>
-                      {formatDate(o.created_at)}
-                    </span>
-                    <span style={{ fontWeight: 800, color: G }}>
-                      {o.total} RON
-                    </span>
-                  </div>
-                  {o.profiles?.name && (
-                    <div style={{ fontSize: 12, color: "#888", marginTop: 4 }}>
-                      👤 {o.profiles.name}{" "}
-                      {o.profiles.phone ? `· ${o.profiles.phone}` : ""}
+                      {(o.items || [])
+                        .slice(0, 2)
+                        .map((item) => {
+                          const p = findProduct(item.product_id);
+                          return p
+                            ? `${p.name} ×${item.qty}`
+                            : item.product_id;
+                        })
+                        .join(", ")}
+                      {(o.items || []).length > 2 &&
+                        ` +${(o.items || []).length - 2} produse`}
                     </div>
                   )}
                 </div>
 
                 {/* Detalii expandate */}
-                {expanded && (
-                  <div
-                    style={{
-                      marginTop: 12,
-                      paddingTop: 12,
-                      borderTop: "1px solid #f0f0f0",
-                    }}
-                  >
+                {isExpanded && (
+                  <div style={{ marginTop: 12 }}>
+                    {isPreorder && (
+                      <div
+                        style={{
+                          background: "#FEF3C7",
+                          borderRadius: 8,
+                          padding: "8px 10px",
+                          marginBottom: 10,
+                          fontSize: 12,
+                          color: "#92400E",
+                        }}
+                      >
+                        ⏳ Pre-comandă — stocul nu a fost decrementat
+                      </div>
+                    )}
+
                     {/* Produse */}
-                    <div style={{ marginBottom: 10 }}>
+                    <div
+                      style={{
+                        marginBottom: 12,
+                        borderTop: "1px solid #f0f0f0",
+                        paddingTop: 10,
+                      }}
+                    >
                       {(o.items || []).map((item, i) => {
                         const p = findProduct(item.product_id);
                         const name = p?.name || item.product_id;
@@ -231,105 +244,148 @@ export default function AdminOrders({ ctx }) {
                       })}
                     </div>
 
+                    {/* Info livrare */}
                     {o.addr && (
                       <div
-                        style={{ fontSize: 12, color: "#aaa", marginBottom: 4 }}
+                        style={{
+                          fontSize: 12,
+                          color: "#777",
+                          marginBottom: 4,
+                        }}
                       >
                         📍 {o.addr}
                       </div>
                     )}
                     {o.delivery_slot && (
                       <div
-                        style={{ fontSize: 12, color: "#aaa", marginBottom: 4 }}
+                        style={{
+                          fontSize: 12,
+                          color: "#777",
+                          marginBottom: 4,
+                        }}
                       >
                         🕐 {o.delivery_slot}
                       </div>
                     )}
                     {o.pay && (
                       <div
-                        style={{ fontSize: 12, color: "#aaa", marginBottom: 4 }}
+                        style={{
+                          fontSize: 12,
+                          color: "#777",
+                          marginBottom: 4,
+                        }}
                       >
-                        💳 {o.pay}
+                        💳 {o.pay === "cash" ? "Cash" : "Transfer bancar"}
                       </div>
                     )}
                     {o.note && (
                       <div
-                        style={{ fontSize: 12, color: "#aaa", marginBottom: 4 }}
+                        style={{
+                          fontSize: 12,
+                          color: "#777",
+                          marginBottom: 4,
+                        }}
                       >
                         📝 {o.note}
                       </div>
                     )}
+                    {o.profiles?.phone && (
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "#777",
+                          marginBottom: 4,
+                        }}
+                      >
+                        📞 {o.profiles.phone}
+                      </div>
+                    )}
 
-                    {/* Notă client */}
-                    <textarea
-                      defaultValue={o.clientNotes || ""}
-                      placeholder="Notă despre client (vizibilă doar Denis)..."
-                      onBlur={async (e) => {
-                        await storage.updateClientNote(
-                          o.user_id,
-                          e.target.value
-                        );
-                        showToast("Notă salvată", "📌");
-                      }}
-                      style={{
-                        ...inp,
-                        resize: "none",
-                        minHeight: 50,
-                        marginTop: 8,
-                        marginBottom: 12,
-                        fontSize: 12,
-                      }}
-                    />
+                    {/* Status update */}
+                    <div style={{ marginTop: 12 }}>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: "#aaa",
+                          textTransform: "uppercase",
+                          letterSpacing: 1,
+                          marginBottom: 8,
+                        }}
+                      >
+                        Actualizează status
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 6,
+                        }}
+                      >
+                        {statusOptions.map((s) => (
+                          <button
+                            key={s}
+                            onClick={() => updateStatus(o.id, s)}
+                            disabled={o.status === s || updatingId === o.id}
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: 10,
+                              fontSize: 11,
+                              fontWeight: 700,
+                              border: `1.5px solid ${
+                                o.status === s ? G : "#e8e8e8"
+                              }`,
+                              background: o.status === s ? GL : "white",
+                              color: o.status === s ? G : "#555",
+                              cursor:
+                                o.status === s ? "default" : "pointer",
+                              opacity:
+                                updatingId === o.id && o.status !== s
+                                  ? 0.5
+                                  : 1,
+                            }}
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-                    {/* Schimbă status */}
-                    <div
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: "#bbb",
-                        textTransform: "uppercase",
-                        marginBottom: 8,
-                      }}
-                    >
-                      Schimbă status
-                    </div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                      {[
-                        "Nouă",
-                        "În procesare",
-                        "Pregătită",
-                        "Livrată",
-                        "Anulată",
-                      ].map((s) => (
-                        <button
-                          key={s}
-                          onClick={() => updateStatus(o.id, s)}
-                          style={{
-                            background: o.status === s ? G : "white",
-                            color: o.status === s ? "white" : "#555",
-                            border: `1.5px solid ${
-                              o.status === s ? G : "#e8e8e8"
-                            }`,
-                            borderRadius: 10,
-                            padding: "6px 12px",
-                            fontSize: 11,
-                            fontWeight: 700,
-                            cursor: "pointer",
-                          }}
-                        >
-                          {s}
-                        </button>
-                      ))}
-                    </div>
+                    {/* WhatsApp */}
+                    {phone && o.profiles?.phone && (
+                      <button
+                        onClick={() => {
+                          const msg = encodeURIComponent(
+                            `Bună! Comanda ta #${o.id} este: ${o.status}.`
+                          );
+                          window.open(
+                            `https://wa.me/${o.profiles.phone.replace(
+                              /\D/g,
+                              ""
+                            )}?text=${msg}`
+                          );
+                        }}
+                        style={{
+                          marginTop: 10,
+                          background: "#25D366",
+                          color: "white",
+                          border: "none",
+                          borderRadius: 10,
+                          padding: "8px 14px",
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        💬 WhatsApp client
+                      </button>
+                    )}
 
                     {/* Șterge comanda */}
-                    <div
-                      style={{
-                        marginTop: 16,
-                        paddingTop: 12,
-                        borderTop: "1px solid #f0f0f0",
-                      }}
-                    >
+                    <div style={{ marginTop: 14 }}>
                       {confirmDelete === o.id ? (
                         <div style={{ display: "flex", gap: 8 }}>
                           <button
@@ -340,8 +396,8 @@ export default function AdminOrders({ ctx }) {
                               color: "white",
                               border: "none",
                               borderRadius: 10,
-                              padding: "10px",
-                              fontSize: 13,
+                              padding: "9px",
+                              fontSize: 12,
                               fontWeight: 700,
                               cursor: "pointer",
                             }}
@@ -356,8 +412,8 @@ export default function AdminOrders({ ctx }) {
                               color: "#555",
                               border: "none",
                               borderRadius: 10,
-                              padding: "10px",
-                              fontSize: 13,
+                              padding: "9px",
+                              fontSize: 12,
                               fontWeight: 700,
                               cursor: "pointer",
                             }}
@@ -387,8 +443,8 @@ export default function AdminOrders({ ctx }) {
                 )}
               </div>
             );
-          })
-        )}
+          })}
+        </div>
       </div>
     </div>
   );
