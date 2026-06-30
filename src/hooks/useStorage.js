@@ -298,6 +298,18 @@ export function useStorage() {
     return data;
   };
 
+  const deleteOrder = async (orderId) => {
+  const { error } = await supabase
+    .from("orders")
+    .delete()
+    .eq("id", orderId);
+  if (error) {
+    console.error("deleteOrder error:", error);
+    return false;
+  }
+  return true;
+};
+
   const getNotifications = async () => {
     const {
       data: { user },
@@ -554,6 +566,7 @@ export function useStorage() {
     getOrders,
     createOrder,
     updateOrderStatus,
+    deleteOrder,
     getNotifications,
     markNotificationsRead,
     getReviews,
