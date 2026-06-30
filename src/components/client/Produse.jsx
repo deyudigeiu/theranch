@@ -34,6 +34,7 @@ export default function Produse({ ctx }) {
 
   return (
     <div style={{ paddingBottom: 80 }}>
+      {/* Search */}
       <div style={{ padding: "14px 18px 0" }}>
         <input
           value={search}
@@ -53,6 +54,7 @@ export default function Produse({ ctx }) {
         />
       </div>
 
+      {/* Categorii */}
       <div
         style={{
           padding: "12px 18px 0",
@@ -90,6 +92,7 @@ export default function Produse({ ctx }) {
         ))}
       </div>
 
+      {/* Sort */}
       <div
         style={{
           padding: "10px 18px 0",
@@ -118,6 +121,7 @@ export default function Produse({ ctx }) {
         </select>
       </div>
 
+      {/* Lista produse */}
       <div style={{ padding: "12px 18px 0" }}>
         {!dataLoaded ? (
           <SkeletonProductGrid />
@@ -138,6 +142,7 @@ export default function Produse({ ctx }) {
           >
             {filtered.map((p) => {
               const c = findCategory(p.cat_id);
+              const outOfStock = p.stock != null && p.stock === 0;
               return (
                 <div
                   key={p.id}
@@ -148,7 +153,6 @@ export default function Produse({ ctx }) {
                     overflow: "hidden",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
                     cursor: "pointer",
-                    opacity: p.stock === 0 ? 0.6 : 1,
                   }}
                 >
                   <div
@@ -161,8 +165,13 @@ export default function Produse({ ctx }) {
                       position: "relative",
                     }}
                   >
-                    <ImgBox src={p.images?.[0]} bg={c.bg} size={72} radius={0} />
-                    {p.hot && p.stock > 0 && (
+                    <ImgBox
+                      src={p.images?.[0]}
+                      bg={c.bg}
+                      size={72}
+                      radius={0}
+                    />
+                    {p.hot && !outOfStock && (
                       <span
                         style={{
                           position: "absolute",
@@ -179,21 +188,21 @@ export default function Produse({ ctx }) {
                         HOT
                       </span>
                     )}
-                    {p.stock === 0 && (
+                    {outOfStock && (
                       <span
                         style={{
                           position: "absolute",
                           top: 8,
                           left: 8,
-                          background: "#FEE2E2",
-                          color: "#DC2626",
+                          background: "#FEF3C7",
+                          color: "#B45309",
                           fontSize: 9,
-                          fontWeight: 700,
+                          fontWeight: 800,
                           padding: "2px 6px",
                           borderRadius: 6,
                         }}
                       >
-                        Epuizat
+                        PRE-COMANDĂ
                       </span>
                     )}
                     {p.bundle && (
@@ -225,7 +234,9 @@ export default function Produse({ ctx }) {
                     >
                       {p.name}
                     </div>
-                    <div style={{ fontSize: 11, color: "#aaa", marginBottom: 6 }}>
+                    <div
+                      style={{ fontSize: 11, color: "#aaa", marginBottom: 6 }}
+                    >
                       {p.unit}
                     </div>
                     <div
@@ -238,7 +249,17 @@ export default function Produse({ ctx }) {
                       <span style={{ fontSize: 13, fontWeight: 800, color: G }}>
                         {p.price} RON
                       </span>
-                      {p.stock > 0 ? (
+                      {outOfStock ? (
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: "#B45309",
+                            fontWeight: 700,
+                          }}
+                        >
+                          Pre-comandă →
+                        </span>
+                      ) : (
                         <QA
                           pid={p.id}
                           cart={cart}
@@ -246,10 +267,6 @@ export default function Produse({ ctx }) {
                           setCartQty={setCartQty}
                           showToast={showToast}
                         />
-                      ) : (
-                        <span style={{ fontSize: 11, color: "#DC2626", fontWeight: 700 }}>
-                          Stoc 0
-                        </span>
                       )}
                     </div>
                   </div>
