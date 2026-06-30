@@ -131,7 +131,7 @@ export default function AdminSettings({ ctx }) {
             Preview calculat automat
           </div>
           <div style={{ fontSize: 13, color: "#2D2D2D" }}>
-            📦 Următoarea livrare: <strong>{formatDate(nextDelivery)}</strong>
+            📦 Următoarea ridicare: <strong>{formatDate(nextDelivery)}</strong>
           </div>
           <div style={{ fontSize: 13, color: "#2D2D2D", marginTop: 4 }}>
             ⏰ Cutoff:{" "}
@@ -151,7 +151,7 @@ export default function AdminSettings({ ctx }) {
 
         {/* Frecvență */}
         <div style={{ marginBottom: 14 }}>
-          <span style={lbl}>Frecvență livrare</span>
+          <span style={lbl}>Frecvență</span>
           <div style={{ display: "flex", gap: 8 }}>
             {FREQ.map((f) => (
               <button
@@ -177,7 +177,7 @@ export default function AdminSettings({ ctx }) {
 
         {/* Ziua preferată */}
         <div style={{ marginBottom: 14 }}>
-          <span style={lbl}>Ziua livrării</span>
+          <span style={lbl}>Ziua</span>
           <select
             value={del.preferred_day ?? 6}
             onChange={(e) =>
@@ -276,7 +276,7 @@ export default function AdminSettings({ ctx }) {
             Override manual (suprascrie calculul automat)
           </div>
           <label style={{ display: "block", marginBottom: 10 }}>
-            <span style={lbl}>Data livrării (lasă gol = automat)</span>
+            <span style={lbl}>Data (lasă gol = automat)</span>
             <input
               type="date"
               value={del.override_delivery || ""}
@@ -329,7 +329,7 @@ export default function AdminSettings({ ctx }) {
 
         {/* Sloturi orare */}
         <div style={{ marginBottom: 16 }}>
-          <span style={lbl}>Sloturi orare livrare</span>
+          <span style={lbl}>Sloturi orare (pentru livrare la domiciliu)</span>
           <div
             style={{
               display: "flex",
@@ -429,38 +429,6 @@ export default function AdminSettings({ ctx }) {
           />
         </label>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 10,
-            marginBottom: 12,
-          }}
-        >
-          <label>
-            <span style={lbl}>Taxă livrare (RON)</span>
-            <input
-              type="number"
-              value={gen.deliveryFee || 0}
-              onChange={(e) =>
-                setGen((g) => ({ ...g, deliveryFee: Number(e.target.value) }))
-              }
-              style={inp}
-            />
-          </label>
-          <label>
-            <span style={lbl}>Comandă minimă (RON)</span>
-            <input
-              type="number"
-              value={gen.minOrder || 0}
-              onChange={(e) =>
-                setGen((g) => ({ ...g, minOrder: Number(e.target.value) }))
-              }
-              style={inp}
-            />
-          </label>
-        </div>
-
         <label style={{ display: "block", marginBottom: 12 }}>
           <span style={lbl}>Telefon contact</span>
           <input
@@ -512,18 +480,41 @@ export default function AdminSettings({ ctx }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            marginBottom: 20,
+            marginBottom: 16,
             cursor: "pointer",
           }}
         >
-          <span style={{ fontSize: 13, color: "#555" }}>
-            🛒 Magazin deschis
-          </span>
+          <span style={{ fontSize: 13, color: "#555" }}>🛒 Magazin deschis</span>
           <input
             type="checkbox"
             checked={gen.shopOpen !== false}
             onChange={(e) =>
               setGen((g) => ({ ...g, shopOpen: e.target.checked }))
+            }
+            style={{ accentColor: G, width: 18, height: 18 }}
+          />
+        </label>
+
+        <label
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 20,
+            cursor: "pointer",
+          }}
+        >
+          <div>
+            <div style={{ fontSize: 13, color: "#555" }}>🚚 Livrare la domiciliu</div>
+            <div style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>
+              Dezactivat = ridicare din Calderon
+            </div>
+          </div>
+          <input
+            type="checkbox"
+            checked={gen.homeDelivery === true}
+            onChange={(e) =>
+              setGen((g) => ({ ...g, homeDelivery: e.target.checked }))
             }
             style={{ accentColor: G, width: 18, height: 18 }}
           />
