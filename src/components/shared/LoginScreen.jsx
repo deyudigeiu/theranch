@@ -7,7 +7,7 @@ export default function LoginScreen({ ctx }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const farmName = ctx.settings?.farmName || "Drăgăneasa Ranch";
+  const farmName = ctx.settings?.farmName || "Ferma Drăgăneasa";
 
   const handleSend = async () => {
     if (!email.includes("@")) {
@@ -93,7 +93,7 @@ export default function LoginScreen({ ctx }) {
               margin: "0 0 36px",
             }}
           >
-            {farmName.split(" ").slice(1).join(" ") || "Ranch"}
+            {farmName.split(" ").slice(1).join(" ") || "Ferma"}
           </p>
 
           {sent ? (
