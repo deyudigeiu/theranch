@@ -251,30 +251,42 @@ export function useStorage() {
     } = await supabase.auth.getUser();
     if (!user) return null;
     const id = "ORD" + String(Math.floor(Math.random() * 90000) + 10000);
+    const isPreorder = orderData.status === "Pre-comandă";
+
     const { data } = await supabase
       .from("orders")
-      .insert({ ...orderData, id, user_id: user.id })
+      .insert({
+        ...orderData,
+        id,
+        user_id: user.id,
+        status: orderData.status || "Nouă",
+      })
       .select()
       .single();
+
     if (data) {
-      for (const item of orderData.items || []) {
-        const { data: prod } = await supabase
-          .from("products")
-          .select("stock")
-          .eq("id", item.product_id)
-          .maybeSingle();
-        if (prod) {
-          await supabase
+      if (!isPreorder) {
+        for (const item of orderData.items || []) {
+          const { data: prod } = await supabase
             .from("products")
-            .update({ stock: Math.max(0, (prod.stock || 0) - item.qty) })
-            .eq("id", item.product_id);
+            .select("stock")
+            .eq("id", item.product_id)
+            .maybeSingle();
+          if (prod) {
+            await supabase
+              .from("products")
+              .update({ stock: Math.max(0, (prod.stock || 0) - item.qty) })
+              .eq("id", item.product_id);
+          }
         }
       }
       await supabase.from("notifications").insert(
         ADMIN_USER_IDS.map((uid) => ({
           user_id: uid,
           type: "order",
-          msg: `Comandă nouă #${id} — ${orderData.total} RON`,
+          msg: isPreorder
+            ? `Pre-comandă nouă #${id} — ${orderData.total} RON`
+            : `Comandă nouă #${id} — ${orderData.total} RON`,
         }))
       );
     }
@@ -299,16 +311,13 @@ export function useStorage() {
   };
 
   const deleteOrder = async (orderId) => {
-  const { error } = await supabase
-    .from("orders")
-    .delete()
-    .eq("id", orderId);
-  if (error) {
-    console.error("deleteOrder error:", error);
-    return false;
-  }
-  return true;
-};
+    const { error } = await supabase.from("orders").delete().eq("id", orderId);
+    if (error) {
+      console.error("deleteOrder error:", error);
+      return false;
+    }
+    return true;
+  };
 
   const getNotifications = async () => {
     const {
