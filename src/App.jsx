@@ -27,6 +27,7 @@ import About from "./components/client/About";
 import Gallery from "./components/client/Gallery";
 import Blog from "./components/client/Blog";
 import Live from "./components/client/Live";
+import CosBaza from "./components/client/CosBaza";
 
 import AdminHome from "./components/admin/AdminHome";
 import AdminOrders from "./components/admin/AdminOrders";
@@ -490,6 +491,7 @@ export default function App() {
           {page === "gallery" && <Gallery ctx={ctx} />}
           {page === "blog" && <Blog ctx={ctx} />}
           {page === "live" && <Live ctx={ctx} />}
+          {page === "cosBaza" && <CosBaza ctx={ctx} />}
         </div>
       </ErrorBoundary>
       {!hideChrome && (
