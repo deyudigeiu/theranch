@@ -11,6 +11,7 @@ export default function HamburgerMenu({ ctx }) {
     menuOpen,
     signOut,
     modules,
+    settings,
   } = ctx;
 
   if (!menuOpen) return null;
@@ -31,7 +32,8 @@ export default function HamburgerMenu({ ctx }) {
     { e: "❤️", l: "Favoritele mele", a: () => go("wishlist"), mod: "wishlist" },
     { e: "🔔", l: "Notificări", a: () => go("notifs"), badge: notifCount },
     { e: "👤", l: "Profilul meu", a: () => go("profile") },
-    { e: "📍", l: "Adrese salvate", a: () => go("addresses") },
+    { e: "📍", l: "Adrese salvate", a: () => go("addresses"), hidden: !settings?.homeDelivery },
+    { e: "🛒", l: "Coșul Lunii", a: () => go("cosBaza"), mod: "cosBaza" },
     { e: "🌾", l: "Despre fermă", a: () => go("about"), mod: "about" },
     { e: "🖼️", l: "Galerie foto", a: () => go("gallery"), mod: "gallery" },
     { e: "📹", l: "Live", a: () => go("live"), mod: "live" },
@@ -58,7 +60,7 @@ export default function HamburgerMenu({ ctx }) {
   ];
 
   const items = (admin && !viewAsClient ? adminItems : clientItems).filter(
-    (item) => !item.mod || modules?.[item.mod]
+    (item) => !item.hidden && (!item.mod || modules?.[item.mod])
   );
 
   const initials = (profile?.name || "?")
