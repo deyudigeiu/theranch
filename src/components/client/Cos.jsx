@@ -1,4 +1,4 @@
-import { G, card, btnG } from "../../lib/constants";
+import { G, GL, card, btnG } from "../../lib/constants";
 import ImgBox from "../shared/ImgBox";
 
 export default function Cos({ ctx }) {
@@ -8,8 +8,6 @@ export default function Cos({ ctx }) {
     setCartQty,
     setPage,
     findCategory,
-    settings,
-    deliveryConfig,
   } = ctx;
 
   const cartItems = (cart || [])
@@ -20,10 +18,6 @@ export default function Cos({ ctx }) {
     .filter((item) => item.p);
 
   const subtotal = cartItems.reduce((sum, { p, q }) => sum + p.price * q, 0);
-  const shipping = deliveryConfig?.fee ?? settings?.shipping ?? 15;
-  const shipFree =
-    subtotal >= (deliveryConfig?.freeAt ?? settings?.shipFreeAt ?? 150);
-  const total = subtotal + (shipFree ? 0 : shipping);
 
   if (cartItems.length === 0)
     return (
@@ -41,7 +35,14 @@ export default function Cos({ ctx }) {
         <div style={{ fontSize: 18, fontWeight: 800, color: "#2D2D2D" }}>
           Coșul e gol
         </div>
-        <p style={{ color: "#aaa", fontSize: 14, textAlign: "center", margin: 0 }}>
+        <p
+          style={{
+            color: "#aaa",
+            fontSize: 14,
+            textAlign: "center",
+            margin: 0,
+          }}
+        >
           Adaugă produse din magazin
         </p>
         <button
@@ -78,6 +79,7 @@ export default function Cos({ ctx }) {
         >
           {cartItems.map(({ p, q }) => {
             const c = findCategory(p.cat_id);
+            const isPreorder = p.stock != null && p.stock === 0;
             return (
               <div
                 key={p.id}
@@ -101,6 +103,22 @@ export default function Cos({ ctx }) {
                     {p.name}
                   </div>
                   <div style={{ fontSize: 12, color: "#aaa" }}>{p.unit}</div>
+                  {isPreorder && (
+                    <span
+                      style={{
+                        display: "inline-block",
+                        marginTop: 3,
+                        fontSize: 10,
+                        fontWeight: 800,
+                        background: "#FEF3C7",
+                        color: "#B45309",
+                        padding: "2px 7px",
+                        borderRadius: 6,
+                      }}
+                    >
+                      PRE-COMANDĂ
+                    </span>
+                  )}
                   <div
                     style={{
                       fontSize: 14,
@@ -179,76 +197,26 @@ export default function Cos({ ctx }) {
           >
             Sumar comandă
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: 13,
-                color: "#555",
-              }}
-            >
-              <span>Subtotal</span>
-              <span>{subtotal} RON</span>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: 13,
-                color: "#555",
-              }}
-            >
-              <span>Livrare</span>
-              <span>
-                {shipFree ? (
-                  <span style={{ color: "#059669" }}>Gratuită</span>
-                ) : (
-                  `${shipping} RON`
-                )}
-              </span>
-            </div>
-            <div
-              style={{ height: 1, background: "#f0f0f0", margin: "4px 0" }}
-            />
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: 16,
-                fontWeight: 800,
-                color: "#2D2D2D",
-              }}
-            >
-              <span>Total</span>
-              <span style={{ color: G }}>{total} RON</span>
-            </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: 16,
+              fontWeight: 800,
+              color: "#2D2D2D",
+            }}
+          >
+            <span>Total</span>
+            <span style={{ color: G }}>{subtotal} RON</span>
           </div>
         </div>
 
-        {total < (settings?.minOrder || 50) ? (
-          <div
-            style={{
-              background: "#FEF3CD",
-              borderRadius: 14,
-              padding: "12px 16px",
-              marginBottom: 14,
-              fontSize: 13,
-              color: "#B45309",
-              textAlign: "center",
-            }}
-          >
-            Comandă minimă: {settings?.minOrder || 50} RON (mai ai{" "}
-            {(settings?.minOrder || 50) - total} RON)
-          </div>
-        ) : (
-          <button
-            onClick={() => setPage("checkout")}
-            style={{ ...btnG(), padding: "18px", fontSize: 16 }}
-          >
-            Comandă acum — {total} RON →
-          </button>
-        )}
+        <button
+          onClick={() => setPage("checkout")}
+          style={{ ...btnG(), padding: "18px", fontSize: 16 }}
+        >
+          Comandă acum — {subtotal} RON →
+        </button>
       </div>
     </div>
   );
