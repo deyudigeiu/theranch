@@ -5,7 +5,9 @@ import ImgBox from "../shared/ImgBox";
 export default function Detail({ ctx }) {
   const {
     selectedProduct: sp,
+    cart,
     wishlist,
+    reviews,
     findCategory,
     findProduct,
     addToCart,
@@ -25,7 +27,9 @@ export default function Detail({ ctx }) {
 
   const c = findCategory(sp.cat_id);
   const inWishlist = wishlist?.some((w) => w.product_id === sp.id);
+  const myReview = reviews?.find((r) => r.product_id === sp.id);
   const images = sp.images || ["📦"];
+  const outOfStock = sp.stock != null && sp.stock === 0;
 
   return (
     <div style={{ paddingBottom: 100 }}>
@@ -125,24 +129,32 @@ export default function Detail({ ctx }) {
             <div style={{ fontSize: 12, color: "#aaa" }}>{sp.unit}</div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div
-              style={{
-                fontSize: 12,
-                color:
-                  sp.stock > 5
-                    ? "#16A34A"
-                    : sp.stock > 0
-                    ? "#F59E0B"
-                    : "#DC2626",
-                fontWeight: 700,
-              }}
-            >
-              {sp.stock > 5
-                ? "În stoc"
-                : sp.stock > 0
-                ? `Doar ${sp.stock} ${sp.unit}`
-                : "Epuizat"}
-            </div>
+            {outOfStock ? (
+              <span
+                style={{
+                  background: "#FEF3C7",
+                  color: "#B45309",
+                  fontSize: 11,
+                  fontWeight: 800,
+                  padding: "4px 10px",
+                  borderRadius: 8,
+                }}
+              >
+                ⏳ Pre-comandă
+              </span>
+            ) : (
+              <div
+                style={{
+                  fontSize: 12,
+                  color: sp.stock > 5 ? "#16A34A" : "#F59E0B",
+                  fontWeight: 700,
+                }}
+              >
+                {sp.stock > 5
+                  ? "În stoc"
+                  : `Doar ${sp.stock} ${sp.unit}`}
+              </div>
+            )}
           </div>
         </div>
 
@@ -177,7 +189,14 @@ export default function Detail({ ctx }) {
         {/* Descriere */}
         {sp.description && (
           <div style={{ ...card, marginBottom: 12 }}>
-            <p style={{ margin: 0, fontSize: 14, color: "#555", lineHeight: 1.6 }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 14,
+                color: "#555",
+                lineHeight: 1.6,
+              }}
+            >
               {sp.description}
             </p>
           </div>
@@ -263,71 +282,117 @@ export default function Detail({ ctx }) {
           </div>
         )}
 
-        {/* Cantitate + Adaugă */}
-        {sp.stock > 0 ? (
-          <>
+        {/* Recenzia mea */}
+        {myReview && (
+          <div style={{ ...card, marginBottom: 12 }}>
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                marginBottom: 14,
+                fontSize: 11,
+                fontWeight: 700,
+                color: "#bbb",
+                letterSpacing: 0.5,
+                textTransform: "uppercase",
+                marginBottom: 6,
               }}
             >
-              <span style={{ fontSize: 13, color: "#555", fontWeight: 600 }}>
-                Cantitate:
-              </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <button
-                  onClick={() => setDQty((q) => Math.max(1, q - 1))}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 10,
-                    background: "#f0f0f0",
-                    border: "none",
-                    fontSize: 18,
-                    cursor: "pointer",
-                    fontWeight: 700,
-                  }}
-                >
-                  −
-                </button>
-                <span
-                  style={{
-                    fontWeight: 800,
-                    fontSize: 16,
-                    minWidth: 24,
-                    textAlign: "center",
-                  }}
-                >
-                  {dQty}
-                </span>
-                <button
-                  onClick={() => setDQty((q) => Math.min(sp.stock, q + 1))}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 10,
-                    background: GL,
-                    border: "none",
-                    fontSize: 18,
-                    cursor: "pointer",
-                    color: G,
-                    fontWeight: 700,
-                  }}
-                >
-                  +
-                </button>
-              </div>
+              Recenzia ta
             </div>
+            <div style={{ fontSize: 18 }}>{"⭐".repeat(myReview.rating)}</div>
+            {myReview.text && (
+              <p style={{ margin: "6px 0 0", fontSize: 13, color: "#555" }}>
+                {myReview.text}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Cantitate + Adaugă / Pre-comandă */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            marginBottom: 14,
+          }}
+        >
+          <span style={{ fontSize: 13, color: "#555", fontWeight: 600 }}>
+            Cantitate:
+          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button
+              onClick={() => setDQty((q) => Math.max(1, q - 1))}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 10,
+                background: "#f0f0f0",
+                border: "none",
+                fontSize: 18,
+                cursor: "pointer",
+                fontWeight: 700,
+              }}
+            >
+              −
+            </button>
+            <span
+              style={{
+                fontWeight: 800,
+                fontSize: 16,
+                minWidth: 24,
+                textAlign: "center",
+              }}
+            >
+              {dQty}
+            </span>
+            <button
+              onClick={() =>
+                setDQty((q) =>
+                  outOfStock ? q + 1 : Math.min(sp.stock, q + 1)
+                )
+              }
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 10,
+                background: GL,
+                border: "none",
+                fontSize: 18,
+                cursor: "pointer",
+                color: G,
+                fontWeight: 700,
+              }}
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        {outOfStock ? (
+          <>
+            <button
+              disabled
+              style={{
+                ...btnG({ background: "#d0d0d0" }),
+                padding: "18px",
+                fontSize: 16,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
+                cursor: "not-allowed",
+                marginBottom: 10,
+                opacity: 0.6,
+              }}
+            >
+              🛒 Adaugă în coș — {sp.price * dQty} RON
+            </button>
             <button
               onClick={() => {
                 addToCart(sp.id, dQty);
                 setPage("produse");
               }}
               style={{
-                ...btnG(),
+                ...btnG({ background: "#F59E0B" }),
                 padding: "18px",
                 fontSize: 16,
                 display: "flex",
@@ -336,17 +401,18 @@ export default function Detail({ ctx }) {
                 gap: 10,
               }}
             >
-              🛒 Adaugă în coș — {sp.price * dQty} RON
+              ⏳ Pre-comandă — {sp.price * dQty} RON
             </button>
           </>
         ) : (
           <button
             onClick={() => {
-              if (!inWishlist) toggleWishlist(sp.id);
-              showToast("Te anunțăm când e disponibil!", "🔔");
+              addToCart(sp.id, dQty);
+              showToast(`${sp.name} adăugat ×${dQty}`);
+              setPage("produse");
             }}
             style={{
-              ...btnG({ background: "#F59E0B" }),
+              ...btnG(),
               padding: "18px",
               fontSize: 16,
               display: "flex",
@@ -355,7 +421,7 @@ export default function Detail({ ctx }) {
               gap: 10,
             }}
           >
-            🔔 Anunță-mă când e disponibil
+            🛒 Adaugă în coș — {sp.price * dQty} RON
           </button>
         )}
       </div>
