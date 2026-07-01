@@ -47,7 +47,11 @@ import AdminBlog from "./components/admin/AdminBlog";
 import AdminGallery from "./components/admin/AdminGallery";
 import AdminLive from "./components/admin/AdminLive";
 
-const ADMIN_EMAILS = ["andrei.spataru2391@gmail.com", "poteras_denis@yahoo.com"];
+// CRITIC FIX #1: admin emails from env vars, not hardcoded in public repo
+const ADMIN_EMAILS = [
+  process.env.REACT_APP_ADMIN_EMAIL_1,
+  process.env.REACT_APP_ADMIN_EMAIL_2,
+].filter(Boolean);
 
 export default function App() {
   const { session, loading: authLoading } = useAuth();
@@ -94,6 +98,11 @@ export default function App() {
   const [lastOrderId, setLastOrderId] = useState(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [toast, setToast] = useState(null);
+
+  // MEDIU FIX #6: editAddress/setEditAddress in ctx for Addresses.jsx
+  const [editAddress, setEditAddress] = useState(null);
+  // MEDIU FIX #10: catFilter for Home → Produse category pre-filter
+  const [catFilter, setCatFilter] = useState("all");
 
   const { nextDelivery, cutoff } = useDelivery(deliveryConfig);
   const slots = deliveryConfig?.slots || [];
@@ -230,7 +239,6 @@ export default function App() {
         ? products.find((p) => p.id === productOrId)
         : productOrId;
     if (!product) return;
-    // Update local state (preserves insertion order, no re-fetch from DB)
     setCart((prev) => {
       const existing = prev.find((i) => i.product_id === product.id);
       if (existing) {
@@ -240,7 +248,7 @@ export default function App() {
       }
       return [...prev, { product_id: product.id, qty }];
     });
-    storage.addToCart(product.id, qty); // persist async, no await
+    storage.addToCart(product.id, qty);
     if (product.stock === 0) {
       showToast(`${product.name} pre-comandat!`, "⏳");
     } else {
@@ -287,6 +295,12 @@ export default function App() {
       return null;
     }
 
+    // CRITIC FIX #4: guard against empty cart submission
+    if (cart.length === 0) {
+      showToast("Coșul este gol", "⚠️");
+      return null;
+    }
+
     const regularItems = cart
       .filter((item) => {
         const p = findProduct(item.product_id);
@@ -315,30 +329,48 @@ export default function App() {
         return sum + (p ? p.price * item.qty : 0);
       }, 0);
 
-    let lastOrder = null;
+    // CRITIC FIX #3: track orders separately to avoid clearing cart items
+    // that weren't successfully ordered
+    let regularOrder = null;
+    let preOrder = null;
 
     if (regularItems.length > 0) {
-      const order = await storage.createOrder({
+      regularOrder = await storage.createOrder({
         ...orderData,
         items: regularItems,
         total: calcTotal(regularItems),
       });
-      if (order) lastOrder = order;
     }
 
     if (preorderItems.length > 0) {
-      const preorder = await storage.createOrder({
+      preOrder = await storage.createOrder({
         ...orderData,
         items: preorderItems,
         total: calcTotal(preorderItems),
         status: "Pre-comandă",
       });
-      if (preorder && !lastOrder) lastOrder = preorder;
     }
+
+    const lastOrder = regularOrder || preOrder;
 
     if (lastOrder) {
       setLastOrderId(lastOrder.id);
-      await clearCart();
+
+      // Only remove items that were actually ordered
+      const orderedIds = new Set([
+        ...(regularOrder ? regularItems.map((i) => i.product_id) : []),
+        ...(preOrder ? preorderItems.map((i) => i.product_id) : []),
+      ]);
+      setCart((prev) => prev.filter((i) => !orderedIds.has(i.product_id)));
+      orderedIds.forEach((id) => storage.removeFromCart(id));
+
+      if (!regularOrder && regularItems.length > 0) {
+        showToast("Unele produse nu au putut fi comandate", "⚠️");
+      }
+      if (!preOrder && preorderItems.length > 0) {
+        showToast("Pre-comanda nu a putut fi plasată", "⚠️");
+      }
+
       const [refreshedOrders, refreshedProducts] = await Promise.all([
         storage.getOrders(!admin),
         storage.getProducts(),
@@ -465,6 +497,8 @@ export default function App() {
     updateProfile,
     addresses,
     setAddresses,
+    editAddress,
+    setEditAddress,
     notifications,
     setNotifications,
     notifCount,
@@ -498,7 +532,8 @@ export default function App() {
     findCategory,
     findProduct,
     openProduct,
-    setCartQty,
+    catFilter,
+    setCatFilter,
     content,
     appConfig,
   };
