@@ -275,25 +275,27 @@ export default function App() {
       return null;
     }
 
-    const regularItems = cart.filter((item) => {
-      const p = findProduct(item.product_id);
-      return p && (p.stock == null || p.stock > 0);
-    });
+    const regularItems = cart
+      .filter((item) => {
+        const p = findProduct(item.product_id);
+        return p && (p.stock == null || p.stock > 0);
+      })
+      .map((item) => {
+        const p = findProduct(item.product_id);
+        if (p && p.stock != null && p.stock < item.qty) {
+          showToast(
+            `${p.name}: redus la ${p.stock} buc (stoc disponibil)`,
+            "⚠️"
+          );
+          return { ...item, qty: p.stock };
+        }
+        return item;
+      });
+
     const preorderItems = cart.filter((item) => {
       const p = findProduct(item.product_id);
       return p && p.stock != null && p.stock === 0;
     });
-
-    for (const item of regularItems) {
-      const p = findProduct(item.product_id);
-      if (p && p.stock != null && p.stock < item.qty) {
-        showToast(
-          `Stoc insuficient pentru ${p.name} (${p.stock} disponibil)`,
-          "⚠️"
-        );
-        return null;
-      }
-    }
 
     const calcTotal = (items) =>
       items.reduce((sum, item) => {
@@ -564,6 +566,7 @@ export default function App() {
     >
       {toast && <Toast toast={toast} />}
       <HamburgerMenu ctx={ctx} />
+      <NotifPanel ctx={ctx} />
       {!hideChrome && <Header ctx={ctx} />}
       <ErrorBoundary onBack={() => setPage("home")}>
         <div style={{ paddingBottom: hideChrome ? 0 : 70 }}>
