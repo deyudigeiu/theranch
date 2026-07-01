@@ -6,10 +6,7 @@ export default function Header({ ctx }) {
 
   const showAdmin = admin && !viewAsClient;
 
-  const farmFull = settings?.farmName || "Ferma Drăgăneasa";
-  const lastSpace = farmFull.lastIndexOf(" ");
-  const farmTop = lastSpace > 0 ? farmFull.slice(0, lastSpace) : farmFull;
-  const farmSub = lastSpace > 0 ? farmFull.slice(lastSpace + 1) : "";
+  const farmName = settings?.farmName || "Drăgăneasa";
 
   return (
     <div
@@ -54,29 +51,28 @@ export default function Header({ ctx }) {
       <div style={{ textAlign: "center" }}>
         <div
           style={{
+            fontSize: 9,
+            color: "#bbb",
+            letterSpacing: 2.5,
+            textTransform: "uppercase",
+            marginBottom: 1,
+          }}
+        >
+          Ferma
+        </div>
+        <div
+          style={{
             fontWeight: 900,
             color: G,
             letterSpacing: "-0.5px",
             fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontSize: 19,
             fontStyle: "italic",
+            lineHeight: 1,
           }}
         >
-          {farmTop}
+          {farmName}
         </div>
-        {farmSub && (
-          <div
-            style={{
-              fontSize: 9,
-              color: "#bbb",
-              letterSpacing: 2.5,
-              textTransform: "uppercase",
-              marginTop: 1,
-            }}
-          >
-            {farmSub}
-          </div>
-        )}
       </div>
 
       {/* Dreapta: bell + cos / admin */}
