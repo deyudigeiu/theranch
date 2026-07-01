@@ -1,9 +1,15 @@
 import { G, GL } from "../../lib/constants";
 
 export default function Header({ ctx }) {
-  const { setMenu, setPage, cartCount, notifCount, admin, viewAsClient, setNotifOpen } = ctx;
+  // MINOR FIX #1: folosește settings.farmName în loc de "Drăgăneasa Ranch" hardcodat
+  const { setMenu, setPage, cartCount, notifCount, admin, viewAsClient, setNotifOpen, settings } = ctx;
 
   const showAdmin = admin && !viewAsClient;
+
+  const farmFull = settings?.farmName || "Ferma Drăgăneasa";
+  const lastSpace = farmFull.lastIndexOf(" ");
+  const farmTop = lastSpace > 0 ? farmFull.slice(0, lastSpace) : farmFull;
+  const farmSub = lastSpace > 0 ? farmFull.slice(lastSpace + 1) : "";
 
   return (
     <div
@@ -56,19 +62,21 @@ export default function Header({ ctx }) {
             fontStyle: "italic",
           }}
         >
-          Drăgăneasa
+          {farmTop}
         </div>
-        <div
-          style={{
-            fontSize: 9,
-            color: "#bbb",
-            letterSpacing: 2.5,
-            textTransform: "uppercase",
-            marginTop: 1,
-          }}
-        >
-          Ranch
-        </div>
+        {farmSub && (
+          <div
+            style={{
+              fontSize: 9,
+              color: "#bbb",
+              letterSpacing: 2.5,
+              textTransform: "uppercase",
+              marginTop: 1,
+            }}
+          >
+            {farmSub}
+          </div>
+        )}
       </div>
 
       {/* Dreapta: bell + cos / admin */}
