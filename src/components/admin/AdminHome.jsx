@@ -68,7 +68,7 @@ export default function AdminHome({ ctx }) {
           fontWeight: 700,
         }}
       >
-        ⚙️ Panou Admin — Denis
+        ⚙️ Panou Admin
       </div>
 
       <div style={{ padding: "16px 18px 8px" }}>
