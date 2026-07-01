@@ -217,6 +217,16 @@ export default function App() {
     storage.markNotificationsRead();
   };
 
+  const deleteNotif = (notifId) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== notifId));
+    storage.deleteNotification(notifId);
+  };
+
+  const deleteAllNotifs = () => {
+    setNotifications([]);
+    storage.deleteAllNotifications();
+  };
+
   const editOrder = async (orderId, updates) => {
     const editorName = profile?.name || session?.user?.email || "—";
     const editorRole = admin ? "admin" : "client";
@@ -506,6 +516,8 @@ export default function App() {
     setNotifOpen,
     markNotifRead,
     markAllNotifsRead,
+    deleteNotif,
+    deleteAllNotifs,
     editOrder,
     clients,
     setClients,
