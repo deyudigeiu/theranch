@@ -266,18 +266,12 @@ export function useStorage() {
 
     if (data) {
       if (!isPreorder) {
+        // CRITIC FIX #1: RPC atomic — previne race condition la comandă simultană
         for (const item of orderData.items || []) {
-          const { data: prod } = await supabase
-            .from("products")
-            .select("stock")
-            .eq("id", item.product_id)
-            .maybeSingle();
-          if (prod) {
-            await supabase
-              .from("products")
-              .update({ stock: Math.max(0, (prod.stock || 0) - item.qty) })
-              .eq("id", item.product_id);
-          }
+          await supabase.rpc("decrement_stock", {
+            p_product_id: item.product_id,
+            p_amount: item.qty,
+          });
         }
       }
       if (ADMIN_USER_IDS.length > 0) {
