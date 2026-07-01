@@ -1,23 +1,17 @@
-import { useState, useEffect } from "react";
 import { G, GL, card, sectHdr } from "../../lib/constants";
 
 export default function AdminHome({ ctx }) {
   const {
     orders,
     products,
+    clients,
     settings,
     countdown,
     nextDelivery,
-    storage,
     setAdminPage,
     showToast,
   } = ctx;
-
-  const [clients, setClients] = useState([]);
-
-  useEffect(() => {
-    storage.getClients().then((data) => setClients(data || []));
-  }, []);
+  // MEDIU FIX #6: clients vine din ctx (App.jsx îl încarcă o singură dată), nu re-fetchat local
 
   const newOrders = orders.filter((o) => o.status === "Nouă");
   const preOrders = orders.filter((o) => o.status === "Pre-comandă");
