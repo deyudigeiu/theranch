@@ -232,7 +232,7 @@ export default function AdminHome({ ctx }) {
         {lowStock.length > 0 && (
           <div style={{ ...card, marginBottom: 10 }}>
             <p style={{ ...sectHdr, marginBottom: 8 }}>⚠️ Stocuri critice</p>
-            {lowStock.slice(0, 3).map((p) => (
+                      {lowStock.map((p) => (
               <div
                 key={p.id}
                 style={{
@@ -274,14 +274,6 @@ export default function AdminHome({ ctx }) {
                 </div>
               </div>
             ))}
-            {lowStock.length > 3 && (
-              <div style={{ color: "#aaa", fontSize: 12, marginTop: 4 }}>
-                +{lowStock.length - 3} alte produse cu stoc scăzut
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Clienți inactivi */}
         {inactiveClients.length > 0 && (
           <div style={{ ...card, marginBottom: 16 }}>
