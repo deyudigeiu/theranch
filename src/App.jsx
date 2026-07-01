@@ -208,6 +208,18 @@ export default function App() {
     storage.markNotificationsRead();
   };
 
+  const editOrder = async (orderId, updates) => {
+    const editorName = profile?.name || session?.user?.email || "—";
+    const editorRole = admin ? "admin" : "client";
+    const updated = await storage.editOrder(orderId, updates, editorName, editorRole);
+    if (updated) {
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, ...updated } : o))
+      );
+    }
+    return updated;
+  };
+
   const addToCart = async (productOrId, qty = 1) => {
     if (settings?.shopOpen === false) {
       showToast("Magazinul este momentan închis", "🔒");
@@ -460,6 +472,7 @@ export default function App() {
     setNotifOpen,
     markNotifRead,
     markAllNotifsRead,
+    editOrder,
     clients,
     setClients,
     settings,
