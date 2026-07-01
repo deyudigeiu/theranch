@@ -183,8 +183,17 @@ export default function App() {
         ? products.find((p) => p.id === productOrId)
         : productOrId;
     if (!product) return;
-    const updated = await storage.addToCart(product.id, qty);
-    if (updated) setCart(updated);
+    // Update local state (preserves insertion order, no re-fetch from DB)
+    setCart((prev) => {
+      const existing = prev.find((i) => i.product_id === product.id);
+      if (existing) {
+        return prev.map((i) =>
+          i.product_id === product.id ? { ...i, qty: i.qty + qty } : i
+        );
+      }
+      return [...prev, { product_id: product.id, qty }];
+    });
+    storage.addToCart(product.id, qty); // persist async, no await
     if (product.stock === 0) {
       showToast(`${product.name} pre-comandat!`, "⏳");
     } else {
@@ -193,8 +202,8 @@ export default function App() {
   };
 
   const removeFromCart = async (productId) => {
-    const updated = await storage.removeFromCart(productId);
-    if (updated !== undefined) setCart(updated);
+    setCart((prev) => prev.filter((i) => i.product_id !== productId));
+    storage.removeFromCart(productId);
   };
 
   const updateCartQty = async (productId, qty) => {
@@ -203,8 +212,10 @@ export default function App() {
       return;
     }
     if (qty <= 0) return removeFromCart(productId);
-    const updated = await storage.updateCartQty(productId, qty);
-    if (updated) setCart(updated);
+    setCart((prev) =>
+      prev.map((i) => (i.product_id === productId ? { ...i, qty } : i))
+    );
+    storage.updateCartQty(productId, qty);
   };
 
   const clearCart = async () => {
