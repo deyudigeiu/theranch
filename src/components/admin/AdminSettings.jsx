@@ -34,6 +34,29 @@ export default function AdminSettings({ ctx }) {
   };
 
   const saveDelivery = async () => {
+    // MEDIU FIX #11: validate override dates before saving
+    if (del.override_delivery) {
+      const d = new Date(del.override_delivery);
+      if (isNaN(d.getTime())) {
+        showToast("Data de livrare este invalidă", "⚠️");
+        return;
+      }
+      if (d < new Date()) {
+        showToast("Data de livrare trebuie să fie în viitor", "⚠️");
+        return;
+      }
+    }
+    if (del.override_cutoff) {
+      const c = new Date(del.override_cutoff);
+      if (isNaN(c.getTime())) {
+        showToast("Data/ora cutoff este invalidă", "⚠️");
+        return;
+      }
+      if (del.override_delivery && c >= new Date(del.override_delivery)) {
+        showToast("Cutoff trebuie să fie înainte de data livrării", "⚠️");
+        return;
+      }
+    }
     setSaving(true);
     await storage.setConfig("delivery", del);
     setDeliveryConfig(del);
@@ -334,6 +357,19 @@ export default function AdminSettings({ ctx }) {
             onChange={(e) =>
               setGen((g) => ({ ...g, farmName: e.target.value }))
             }
+            style={inp}
+          />
+        </label>
+
+        {/* MINOR FIX: add farmerName setting to replace hardcoded "Denis" */}
+        <label style={{ display: "block", marginBottom: 12 }}>
+          <span style={lbl}>Numele fermierului</span>
+          <input
+            value={gen.farmerName || ""}
+            onChange={(e) =>
+              setGen((g) => ({ ...g, farmerName: e.target.value }))
+            }
+            placeholder="Denis"
             style={inp}
           />
         </label>
