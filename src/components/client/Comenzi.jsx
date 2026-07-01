@@ -1,6 +1,37 @@
 import { useState } from "react";
 import { G, GL, card, SC, btnG } from "../../lib/constants";
 
+// MINOR FIX #8: Header definit în afara componentei — previne remontare la fiecare render
+function Header({ onBack }) {
+  return (
+    <div
+      style={{
+        padding: "14px 18px 0",
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        marginBottom: 16,
+      }}
+    >
+      <button
+        onClick={onBack}
+        style={{
+          background: "none",
+          border: "none",
+          fontSize: 22,
+          cursor: "pointer",
+          color: "#2D2D2D",
+        }}
+      >
+        ‹
+      </button>
+      <span style={{ fontWeight: 800, fontSize: 16, color: "#2D2D2D" }}>
+        Comenzile mele
+      </span>
+    </div>
+  );
+}
+
 export default function Comenzi({ ctx }) {
   const {
     orders,
@@ -75,38 +106,11 @@ export default function Comenzi({ ctx }) {
     }
   };
 
-  const Header = () => (
-    <div
-      style={{
-        padding: "14px 18px 0",
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
-        marginBottom: 16,
-      }}
-    >
-      <button
-        onClick={() => setPage("home")}
-        style={{
-          background: "none",
-          border: "none",
-          fontSize: 22,
-          cursor: "pointer",
-          color: "#2D2D2D",
-        }}
-      >
-        ‹
-      </button>
-      <span style={{ fontWeight: 800, fontSize: 16, color: "#2D2D2D" }}>
-        Comenzile mele
-      </span>
-    </div>
-  );
 
   if (orders.length === 0)
     return (
       <div>
-        <Header />
+        <Header onBack={() => setPage("home")} />
         <div
           style={{
             display: "flex",
@@ -136,7 +140,7 @@ export default function Comenzi({ ctx }) {
 
   return (
     <div style={{ paddingBottom: 80 }}>
-      <Header />
+      <Header onBack={() => setPage("home")} />
       <div style={{ padding: "0 18px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {orders.map((o) => {
