@@ -345,6 +345,13 @@ export function useStorage() {
       .eq("read", false);
   };
 
+  const markOneNotifRead = async (notifId) => {
+    await supabase
+      .from("notifications")
+      .update({ read: true })
+      .eq("id", notifId);
+  };
+
   const getReviews = async (productId) => {
     const { data } = await supabase
       .from("reviews")
@@ -578,6 +585,7 @@ export function useStorage() {
     deleteOrder,
     getNotifications,
     markNotificationsRead,
+    markOneNotifRead,
     getReviews,
     saveReview,
     getSubscriptions,
