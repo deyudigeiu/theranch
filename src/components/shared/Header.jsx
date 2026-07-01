@@ -6,7 +6,10 @@ export default function Header({ ctx }) {
 
   const showAdmin = admin && !viewAsClient;
 
-  const farmName = settings?.farmName || "Drăgăneasa";
+  const farmFull = settings?.farmName || "Ferma Drăgăneasa";
+  const spaceIdx = farmFull.indexOf(" ");
+  const farmTop = spaceIdx > 0 ? farmFull.slice(0, spaceIdx) : "Ferma";
+  const farmBottom = spaceIdx > 0 ? farmFull.slice(spaceIdx + 1) : farmFull;
 
   return (
     <div
@@ -58,7 +61,7 @@ export default function Header({ ctx }) {
             marginBottom: 1,
           }}
         >
-          Ferma
+          {farmTop}
         </div>
         <div
           style={{
@@ -71,7 +74,7 @@ export default function Header({ ctx }) {
             lineHeight: 1,
           }}
         >
-          {farmName}
+          {farmBottom}
         </div>
       </div>
 
