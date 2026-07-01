@@ -29,7 +29,6 @@ export default function HamburgerMenu({ ctx }) {
     { e: "📋", l: "Comenzile mele", a: () => go("comenzi") },
     { e: "❤️", l: "Favoritele mele", a: () => go("wishlist"), mod: "wishlist" },
     { e: "👤", l: "Profilul meu", a: () => go("profile") },
-    { e: "📍", l: "Adrese salvate", a: () => go("addresses") },
     { e: "🌾", l: "Despre fermă", a: () => go("about"), mod: "about" },
     { e: "🖼️", l: "Galerie foto", a: () => go("gallery"), mod: "gallery" },
     { e: "📹", l: "Live", a: () => go("live"), mod: "live" },
