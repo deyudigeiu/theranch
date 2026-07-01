@@ -11,9 +11,13 @@ export default function Comenzi({ ctx }) {
     findProduct,
     addToCart,
     storage,
+    editOrder,
   } = ctx;
 
   const [cancelling, setCancelling] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editDraft, setEditDraft] = useState(null);
+  const [saving, setSaving] = useState(false);
   const phone = settings?.whatsapp?.replace(/\s/g, "") || "";
 
   const formatDate = (d) =>
@@ -30,6 +34,35 @@ export default function Comenzi({ ctx }) {
       await addToCart(item.product_id, item.qty);
     }
     setPage("cos");
+  };
+
+  const startClientEdit = (order) => {
+    setEditingId(order.id);
+    setEditDraft({
+      items: (order.items || []).map((i) => ({ ...i })),
+      pay: order.pay || "cash",
+    });
+  };
+
+  const saveClientEdit = async (order) => {
+    setSaving(true);
+    const total = editDraft.items.reduce((s, item) => {
+      const p = findProduct(item.product_id);
+      return s + (p ? p.price * item.qty : 0);
+    }, 0);
+    const updated = await editOrder(order.id, {
+      items: editDraft.items,
+      pay: editDraft.pay,
+      total,
+    });
+    setSaving(false);
+    if (updated) {
+      setEditingId(null);
+      setEditDraft(null);
+      showToast("Comanda actualizată", "✓");
+    } else {
+      showToast("Eroare la actualizare", "❌");
+    }
   };
 
   const cancelPreorder = async (orderId) => {
@@ -243,6 +276,84 @@ export default function Comenzi({ ctx }) {
                     )}
                   </div>
                 </div>
+
+                {/* Editare comanda (doar status Noua) */}
+                {o.status === "Nouă" && editingId !== o.id && (
+                  <div style={{ marginTop: 10 }}>
+                    <button
+                      onClick={() => startClientEdit(o)}
+                      style={{ background: GL, color: G, border: "none", borderRadius: 10, padding: "7px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                    >
+                      ✏️ Modifică comanda
+                    </button>
+                  </div>
+                )}
+
+                {/* Panoul de editare client */}
+                {editingId === o.id && editDraft && (
+                  <div style={{ marginTop: 12, borderTop: "1px solid #f0f0f0", paddingTop: 12 }}>
+                    <div style={{ fontSize: 12, color: G, fontWeight: 600, marginBottom: 10 }}>
+                      ✏️ Editezi comanda — poți modifica cantitățile și plata
+                    </div>
+
+                    {editDraft.items.map((item, idx) => {
+                      const p = findProduct(item.product_id);
+                      return (
+                        <div key={idx} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                          <span style={{ flex: 1, fontSize: 13, color: "#2D2D2D" }}>{p?.name || item.product_id}</span>
+                          <button
+                            onClick={() => setEditDraft((d) => {
+                              const items = [...d.items];
+                              items[idx] = { ...items[idx], qty: Math.max(1, items[idx].qty - 1) };
+                              return { ...d, items };
+                            })}
+                            style={{ width: 28, height: 28, borderRadius: 8, border: "1.5px solid #e8e8e8", background: "white", fontSize: 16, cursor: "pointer" }}
+                          >−</button>
+                          <span style={{ fontSize: 14, fontWeight: 700, minWidth: 24, textAlign: "center" }}>{item.qty}</span>
+                          <button
+                            onClick={() => setEditDraft((d) => {
+                              const items = [...d.items];
+                              items[idx] = { ...items[idx], qty: items[idx].qty + 1 };
+                              return { ...d, items };
+                            })}
+                            style={{ width: 28, height: 28, borderRadius: 8, border: "1.5px solid #e8e8e8", background: "white", fontSize: 16, cursor: "pointer" }}
+                          >+</button>
+                        </div>
+                      );
+                    })}
+
+                    <div style={{ display: "flex", gap: 8, marginTop: 8, marginBottom: 12 }}>
+                      {[{ v: "cash", l: "💵 Cash" }, { v: "transfer", l: "🏦 Transfer" }].map(({ v, l }) => (
+                        <button
+                          key={v}
+                          onClick={() => setEditDraft((d) => ({ ...d, pay: v }))}
+                          style={{
+                            padding: "6px 14px", borderRadius: 10, fontSize: 12, fontWeight: 700,
+                            border: `1.5px solid ${editDraft.pay === v ? G : "#e8e8e8"}`,
+                            background: editDraft.pay === v ? GL : "white",
+                            color: editDraft.pay === v ? G : "#555", cursor: "pointer",
+                          }}
+                        >{l}</button>
+                      ))}
+                    </div>
+
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        onClick={() => saveClientEdit(o)}
+                        disabled={saving}
+                        style={{ flex: 2, background: G, color: "white", border: "none", borderRadius: 12, padding: "10px", fontSize: 13, fontWeight: 700, cursor: saving ? "default" : "pointer", opacity: saving ? 0.7 : 1 }}
+                      >
+                        {saving ? "Se salvează..." : "✓ Salvează"}
+                      </button>
+                      <button
+                        onClick={() => { setEditingId(null); setEditDraft(null); }}
+                        style={{ flex: 1, background: "#f5f5f5", color: "#555", border: "none", borderRadius: 12, padding: "10px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+                      >
+                        Renunță
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Anulare pre-comandă */}
                 {isPreorder && o.status === "Pre-comandă" && (
