@@ -38,6 +38,11 @@ export default function Profile({ ctx }) {
       return;
     }
     const saved = await storage.saveAddress(addrForm);
+    // MEDIU FIX #8: null check — Supabase poate returna null la eroare RLS
+    if (!saved) {
+      showToast("Eroare la salvarea adresei", "❌");
+      return;
+    }
     if (addrForm.id) {
       setAddresses((prev) => prev.map((a) => (a.id === saved.id ? saved : a)));
     } else {
