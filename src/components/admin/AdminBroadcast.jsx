@@ -53,6 +53,10 @@ const TEMPLATES = [
   },
 ];
 
+// MEDIU FIX #5: escapeHtml previne XSS în preview — mesajul e text, nu HTML
+const escapeHtml = (s) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
 export default function AdminBroadcast({ ctx }) {
   const {
     storage,
@@ -136,6 +140,8 @@ export default function AdminBroadcast({ ctx }) {
       : `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
   };
+
+  const lines = message.split("\n");
 
   return (
     <div style={{ paddingBottom: 100 }}>
@@ -260,7 +266,7 @@ export default function AdminBroadcast({ ctx }) {
           }}
         />
 
-        {/* Preview */}
+        {/* Preview — escapeHtml aplicat înainte de bold markdown, deci XSS imposibil */}
         {message && (
           <div
             style={{
@@ -283,19 +289,16 @@ export default function AdminBroadcast({ ctx }) {
                 lineHeight: 1.6,
               }}
             >
-              {message
-                .replace(/\*(.*?)\*/g, (_, t) => `<b>${t}</b>`)
-                .split("\n")
-                .map((line, i) => (
-                  <span
-                    key={i}
-                    dangerouslySetInnerHTML={{
-                      __html:
-                        line +
-                        (i < message.split("\n").length - 1 ? "<br/>" : ""),
-                    }}
-                  />
-                ))}
+              {lines.map((line, i) => (
+                <span
+                  key={i}
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      escapeHtml(line).replace(/\*(.*?)\*/g, "<b>$1</b>") +
+                      (i < lines.length - 1 ? "<br/>" : ""),
+                  }}
+                />
+              ))}
             </div>
           </div>
         )}
