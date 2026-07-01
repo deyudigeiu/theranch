@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { G, GL, card, btnG } from "../../lib/constants";
 import ImgBox from "../shared/ImgBox";
 
@@ -20,10 +20,12 @@ export default function Detail({ ctx }) {
   const [dQty, setDQty] = useState(1);
   const [imgIdx, setImgIdx] = useState(0);
 
-  if (!sp) {
-    setPage("produse");
-    return null;
-  }
+  // CRITIC FIX #4: nu apela setPage direct în render — cauzează crash în StrictMode
+  useEffect(() => {
+    if (!sp) setPage("produse");
+  }, [sp]);
+
+  if (!sp) return null;
 
   const c = findCategory(sp.cat_id);
   const inWishlist = wishlist?.some((w) => w.product_id === sp.id);
