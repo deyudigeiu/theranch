@@ -67,13 +67,14 @@ export default function Checkout({ ctx }) {
     if (!validate()) return;
     setLoading(true);
     try {
-      await placeOrder({
+      const result = await placeOrder({
         addr: del.addr,
         delivery_slot: del.slot,
         pay: del.pay,
         note: del.note,
         total,
       });
+      if (!result) setLoading(false); // placeOrder esuat fara throw
     } catch (e) {
       showToast("Eroare la plasarea comenzii", "❌");
       setLoading(false);
@@ -327,23 +328,31 @@ export default function Checkout({ ctx }) {
                   Disponibile acum
                 </div>
               )}
-              {regularItems.map(({ p, q }) => (
-                <div
-                  key={p.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: 6,
-                    fontSize: 13,
-                    color: "#555",
-                  }}
-                >
-                  <span>
-                    {p.name} × {q}
-                  </span>
-                  <span style={{ fontWeight: 600 }}>{p.price * q} RON</span>
-                </div>
-              ))}
+              {regularItems.map(({ p, q }) => {
+                const overStock = p.stock != null && p.stock > 0 && q > p.stock;
+                return (
+                  <div key={p.id} style={{ marginBottom: 6 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        fontSize: 13,
+                        color: overStock ? "#DC2626" : "#555",
+                      }}
+                    >
+                      <span>
+                        {p.name} × {q}
+                        {overStock && (
+                          <span style={{ fontSize: 11, fontWeight: 700 }}>
+                            {" "}⚠️ doar {p.stock} disponibil
+                          </span>
+                        )}
+                      </span>
+                      <span style={{ fontWeight: 600 }}>{p.price * q} RON</span>
+                    </div>
+                  </div>
+                );
+              })}
             </>
           )}
 
