@@ -15,11 +15,19 @@ export default function Produse({ ctx }) {
     openProduct,
     findCategory,
     dataLoaded,
+    catFilter,
+    setCatFilter,
   } = ctx;
 
+  // MEDIU FIX #10/#17: initialize activeCat from ctx.catFilter (set by Home category click)
   const [search, setSearch] = useState("");
-  const [activeCat, setActiveCat] = useState("all");
+  const [activeCat, setActiveCat] = useState(catFilter || "all");
   const [sort, setSort] = useState("default");
+
+  const handleCatChange = (id) => {
+    setActiveCat(id);
+    setCatFilter(id);
+  };
 
   const filtered = products
     .filter((p) => p.active)
@@ -70,7 +78,7 @@ export default function Produse({ ctx }) {
         ].map((c) => (
           <button
             key={c.id}
-            onClick={() => setActiveCat(c.id)}
+            onClick={() => handleCatChange(c.id)}
             style={{
               background: activeCat === c.id ? G : "white",
               color: activeCat === c.id ? "white" : "#555",
@@ -81,65 +89,52 @@ export default function Produse({ ctx }) {
               fontWeight: 700,
               cursor: "pointer",
               flexShrink: 0,
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
+              whiteSpace: "nowrap",
             }}
           >
-            <span>{c.emoji}</span>
-            {c.name}
+            {c.emoji} {c.name}
           </button>
         ))}
       </div>
 
       {/* Sort */}
-      <div
-        style={{
-          padding: "10px 18px 0",
-          display: "flex",
-          justifyContent: "flex-end",
-        }}
-      >
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value)}
-          style={{
-            border: "1.5px solid #e8e8e8",
-            borderRadius: 10,
-            padding: "6px 10px",
-            fontSize: 12,
-            color: "#555",
-            background: "white",
-            cursor: "pointer",
-            outline: "none",
-          }}
-        >
-          <option value="default">Sortare: Default</option>
-          <option value="price_asc">Preț crescător</option>
-          <option value="price_desc">Preț descrescător</option>
-          <option value="name">Nume A-Z</option>
-        </select>
+      <div style={{ padding: "10px 18px 0", display: "flex", gap: 6 }}>
+        {[
+          { v: "default", l: "Implicit" },
+          { v: "price_asc", l: "Preț ↑" },
+          { v: "price_desc", l: "Preț ↓" },
+          { v: "name", l: "A–Z" },
+        ].map(({ v, l }) => (
+          <button
+            key={v}
+            onClick={() => setSort(v)}
+            style={{
+              padding: "5px 12px",
+              borderRadius: 10,
+              fontSize: 11,
+              fontWeight: 700,
+              border: `1.5px solid ${sort === v ? G : "#e8e8e8"}`,
+              background: sort === v ? GL : "white",
+              color: sort === v ? G : "#777",
+              cursor: "pointer",
+            }}
+          >
+            {l}
+          </button>
+        ))}
       </div>
 
-      {/* Lista produse */}
-      <div style={{ padding: "12px 18px 0" }}>
+      {/* Grid */}
+      <div style={{ padding: "14px 18px 0" }}>
         {!dataLoaded ? (
           <SkeletonProductGrid />
         ) : filtered.length === 0 ? (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "48px 0",
-              color: "#bbb",
-              fontSize: 14,
-            }}
-          >
-            Niciun produs găsit
+          <div style={{ textAlign: "center", padding: "40px 0", color: "#bbb" }}>
+            <div style={{ fontSize: 48 }}>🔍</div>
+            <p style={{ fontSize: 14, marginTop: 12 }}>Niciun produs găsit</p>
           </div>
         ) : (
-          <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
-          >
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             {filtered.map((p) => {
               const c = findCategory(p.cat_id);
               const outOfStock = p.stock != null && p.stock === 0;
@@ -153,121 +148,20 @@ export default function Produse({ ctx }) {
                     overflow: "hidden",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
                     cursor: "pointer",
+                    opacity: outOfStock && !p.active ? 0.6 : 1,
                   }}
                 >
-                  <div
-                    style={{
-                      height: 100,
-                      background: c.bg,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      position: "relative",
-                    }}
-                  >
-                    <ImgBox
-                      src={p.images?.[0]}
-                      bg={c.bg}
-                      size={72}
-                      radius={0}
-                    />
-                    {p.hot && !outOfStock && (
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: 8,
-                          left: 8,
-                          background: "#E53935",
-                          color: "white",
-                          fontSize: 9,
-                          fontWeight: 800,
-                          padding: "2px 7px",
-                          borderRadius: 6,
-                        }}
-                      >
-                        HOT
-                      </span>
-                    )}
-                    {outOfStock && (
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: 8,
-                          left: 8,
-                          background: "#FEF3C7",
-                          color: "#B45309",
-                          fontSize: 9,
-                          fontWeight: 800,
-                          padding: "2px 6px",
-                          borderRadius: 6,
-                        }}
-                      >
-                        PRE-COMANDĂ
-                      </span>
-                    )}
-                    {p.bundle && (
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: 8,
-                          right: 8,
-                          background: "#EEF2FE",
-                          color: "#3B4FCC",
-                          fontSize: 9,
-                          fontWeight: 700,
-                          padding: "2px 6px",
-                          borderRadius: 6,
-                        }}
-                      >
-                        📦 Pachet
-                      </span>
-                    )}
+                  <div style={{ height: 100, background: c.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <ImgBox src={p.images?.[0]} bg={c.bg} size={72} radius={0} />
                   </div>
                   <div style={{ padding: "10px 12px 12px" }}>
-                    <div
-                      style={{
-                        fontSize: 13,
-                        fontWeight: 700,
-                        color: "#2D2D2D",
-                        marginBottom: 2,
-                      }}
-                    >
-                      {p.name}
-                    </div>
-                    <div
-                      style={{ fontSize: 11, color: "#aaa", marginBottom: 6 }}
-                    >
-                      {p.unit}
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <span style={{ fontSize: 13, fontWeight: 800, color: G }}>
-                        {p.price} RON
-                      </span>
-                      {outOfStock ? (
-                        <span
-                          style={{
-                            fontSize: 11,
-                            color: "#B45309",
-                            fontWeight: 700,
-                          }}
-                        >
-                          Pre-comandă →
-                        </span>
-                      ) : (
-                        <QA
-                          pid={p.id}
-                          cart={cart}
-                          addToCart={addToCart}
-                          setCartQty={setCartQty}
-                          showToast={showToast}
-                        />
-                      )}
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#2D2D2D", marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+                    {outOfStock && (
+                      <span style={{ fontSize: 9, fontWeight: 800, background: "#FEF3C7", color: "#B45309", padding: "1px 6px", borderRadius: 5, marginBottom: 4, display: "inline-block" }}>PRE-COMANDĂ</span>
+                    )}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: G }}>{p.price} RON</span>
+                      <QA pid={p.id} cart={cart} addToCart={addToCart} setCartQty={setCartQty} />
                     </div>
                   </div>
                 </div>
