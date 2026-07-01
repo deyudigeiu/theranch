@@ -9,6 +9,7 @@ import LoginScreen from "./components/shared/LoginScreen";
 import Header from "./components/shared/Header";
 import TabBar from "./components/shared/TabBar";
 import HamburgerMenu from "./components/shared/HamburgerMenu";
+import NotifPanel from "./components/shared/NotifPanel";
 import ErrorBoundary from "./components/shared/ErrorBoundary";
 
 import Home from "./components/client/Home";
@@ -78,6 +79,7 @@ export default function App() {
   const [profile, setProfile] = useState(null);
   const [addresses, setAddresses] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [notifOpen, setNotifOpen] = useState(false);
   const [clients, setClients] = useState([]);
 
   const [settings, setSettings] = useState({});
@@ -172,6 +174,39 @@ export default function App() {
       setDataLoaded(true);
     })();
   }, [session]);
+
+  // Realtime — notificari noi fara refresh
+  useEffect(() => {
+    if (!session?.user) return;
+    const channel = supabase
+      .channel("notif-" + session.user.id)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${session.user.id}`,
+        },
+        (payload) => {
+          setNotifications((prev) => [payload.new, ...prev]);
+        }
+      )
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, [session]);
+
+  const markNotifRead = (notifId) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notifId ? { ...n, read: true } : n))
+    );
+    storage.markOneNotifRead(notifId);
+  };
+
+  const markAllNotifsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    storage.markNotificationsRead();
+  };
 
   const addToCart = async (productOrId, qty = 1) => {
     if (settings?.shopOpen === false) {
@@ -419,6 +454,10 @@ export default function App() {
     notifications,
     setNotifications,
     notifCount,
+    notifOpen,
+    setNotifOpen,
+    markNotifRead,
+    markAllNotifsRead,
     clients,
     setClients,
     settings,
@@ -485,6 +524,7 @@ export default function App() {
       >
         {toast && <Toast toast={toast} />}
         <HamburgerMenu ctx={ctx} />
+        <NotifPanel ctx={ctx} />
         <Header ctx={ctx} />
         <ErrorBoundary onBack={() => setAdminPage("dash")}>
           <div style={{ paddingTop: 64 }}>
