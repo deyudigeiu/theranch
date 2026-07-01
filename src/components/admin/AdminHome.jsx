@@ -232,7 +232,7 @@ export default function AdminHome({ ctx }) {
         {lowStock.length > 0 && (
           <div style={{ ...card, marginBottom: 10 }}>
             <p style={{ ...sectHdr, marginBottom: 8 }}>⚠️ Stocuri critice</p>
-                      {lowStock.map((p) => (
+            {lowStock.map((p) => (
               <div
                 key={p.id}
                 style={{
@@ -274,6 +274,9 @@ export default function AdminHome({ ctx }) {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
         {/* Clienți inactivi */}
         {inactiveClients.length > 0 && (
           <div style={{ ...card, marginBottom: 16 }}>
