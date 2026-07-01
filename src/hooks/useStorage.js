@@ -353,6 +353,21 @@ export function useStorage() {
       changes,
     });
 
+    // Notifica clientul la schimbari de status relevante
+    const NOTIFY_STATUSES = {
+      "Confirmată":  `Comanda ta #${orderId} a fost confirmată! 🎉`,
+      "În livrare":  `Comanda ta #${orderId} este în drum spre tine! 🚚`,
+      "Livrată":     `Comanda ta #${orderId} a fost livrată. Poftă bună! 🌿`,
+      "Anulată":     `Comanda ta #${orderId} a fost anulată.`,
+    };
+    if (changes.status && current.user_id && NOTIFY_STATUSES[changes.status.to]) {
+      await supabase.from("notifications").insert({
+        user_id: current.user_id,
+        type: "order",
+        msg: NOTIFY_STATUSES[changes.status.to],
+      });
+    }
+
     return updated;
   };
 
