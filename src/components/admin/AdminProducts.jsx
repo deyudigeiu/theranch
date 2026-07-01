@@ -35,6 +35,8 @@ export default function AdminProducts({ ctx }) {
   const [editItem, setEditItem] = useState(null);
   const [search, setSearch] = useState("");
   const [tagInput, setTagInput] = useState("");
+  // MEDIU FIX #9: require confirmation before deleting a product
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   const filtered = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
@@ -68,6 +70,7 @@ export default function AdminProducts({ ctx }) {
   const remove = async (id) => {
     await storage.deleteProduct(id);
     setProducts((prev) => prev.filter((p) => p.id !== id));
+    setConfirmDelete(null);
     showToast("Produs șters", "🗑");
   };
 
@@ -427,21 +430,57 @@ export default function AdminProducts({ ctx }) {
                 >
                   Edit
                 </button>
-                <button
-                  onClick={() => remove(p.id)}
-                  style={{
-                    background: "#FEE2E2",
-                    color: "#DC2626",
-                    border: "none",
-                    borderRadius: 8,
-                    padding: "6px 10px",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                >
-                  ×
-                </button>
+                {/* MEDIU FIX #9: confirm before delete */}
+                {confirmDelete === p.id ? (
+                  <div style={{ display: "flex", gap: 4 }}>
+                    <button
+                      onClick={() => remove(p.id)}
+                      style={{
+                        background: "#DC2626",
+                        color: "white",
+                        border: "none",
+                        borderRadius: 8,
+                        padding: "6px 10px",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                      }}
+                    >
+                      ✓
+                    </button>
+                    <button
+                      onClick={() => setConfirmDelete(null)}
+                      style={{
+                        background: "#f5f5f5",
+                        color: "#555",
+                        border: "none",
+                        borderRadius: 8,
+                        padding: "6px 10px",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                      }}
+                    >
+                      ✗
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setConfirmDelete(p.id)}
+                    style={{
+                      background: "#FEE2E2",
+                      color: "#DC2626",
+                      border: "none",
+                      borderRadius: 8,
+                      padding: "6px 10px",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    ×
+                  </button>
+                )}
               </div>
             </div>
           ))}
