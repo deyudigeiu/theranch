@@ -17,6 +17,7 @@ export default function Checkout({ ctx }) {
   } = ctx;
 
   const homeDelivery = settings?.homeDelivery === true;
+  const farmerName = settings?.farmerName || "Denis";
 
   const [del, setDel] = useState({
     addr: homeDelivery ? "" : PICKUP_ADDR,
@@ -55,6 +56,11 @@ export default function Checkout({ ctx }) {
       : "";
 
   const validate = () => {
+    // CRITIC FIX #4: empty cart check
+    if (cartItems.length === 0) {
+      showToast("Coșul este gol", "⚠️");
+      return false;
+    }
     const e = {};
     if (homeDelivery && !del.addr.trim()) e.addr = "Adresa este obligatorie";
     if (homeDelivery && slots?.length > 0 && !del.slot)
@@ -74,7 +80,7 @@ export default function Checkout({ ctx }) {
         note: del.note,
         total,
       });
-      if (!result) setLoading(false); // placeOrder esuat fara throw
+      if (!result) setLoading(false);
     } catch (e) {
       showToast("Eroare la plasarea comenzii", "❌");
       setLoading(false);
@@ -289,9 +295,9 @@ export default function Checkout({ ctx }) {
           </div>
         </div>
 
-        {/* Notă */}
+        {/* Notă — MINOR FIX: use dynamic farmer name from settings */}
         <div style={{ marginBottom: 20 }}>
-          <span style={lbl}>Notă pentru Denis (opțional)</span>
+          <span style={lbl}>Notă pentru {farmerName} (opțional)</span>
           <input
             value={del.note}
             onChange={(e) => setDel((d) => ({ ...d, note: e.target.value }))}
