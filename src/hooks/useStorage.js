@@ -1,9 +1,9 @@
 import { supabase } from "../lib/supabase";
 
 const ADMIN_USER_IDS = [
-  "05580dfa-fac9-4e8a-84b1-807a56457cba",
-  "5a83a3c3-b6e8-4c0a-a63b-ac8336cf1970",
-];
+  process.env.REACT_APP_ADMIN_UUID_1,
+  process.env.REACT_APP_ADMIN_UUID_2,
+].filter(Boolean);
 
 export function useStorage() {
   const getProducts = async () => {
@@ -280,15 +280,17 @@ export function useStorage() {
           }
         }
       }
-      await supabase.from("notifications").insert(
-        ADMIN_USER_IDS.map((uid) => ({
-          user_id: uid,
-          type: "order",
-          msg: isPreorder
-            ? `Pre-comandă nouă #${id} — ${orderData.total} RON`
-            : `Comandă nouă #${id} — ${orderData.total} RON`,
-        }))
-      );
+      if (ADMIN_USER_IDS.length > 0) {
+        await supabase.from("notifications").insert(
+          ADMIN_USER_IDS.map((uid) => ({
+            user_id: uid,
+            type: "order",
+            msg: isPreorder
+              ? `Pre-comandă nouă #${id} — ${orderData.total} RON`
+              : `Comandă nouă #${id} — ${orderData.total} RON`,
+          }))
+        );
+      }
     }
     return data;
   };
@@ -323,7 +325,6 @@ export function useStorage() {
       .single();
     if (!current) return null;
 
-    // Calculeaza ce s-a schimbat
     const changes = {};
     if (updates.status !== undefined && updates.status !== current.status)
       changes.status = { from: current.status, to: updates.status };
@@ -353,7 +354,6 @@ export function useStorage() {
       changes,
     });
 
-    // Notifica clientul la schimbari de status relevante
     const NOTIFY_STATUSES = {
       "Confirmată":  `Comanda ta #${orderId} a fost confirmată! 🎉`,
       "În livrare":  `Comanda ta #${orderId} este în drum spre tine! 🚚`,
