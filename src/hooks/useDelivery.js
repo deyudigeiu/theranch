@@ -24,6 +24,11 @@ export function useDelivery(deliveryConfig) {
       nextDelivery = calcNextDelivery(frequency, preferred_day, preferred_week);
     }
 
+    // MEDIU FIX #8: guard against null nextDelivery (calcMonthlyDelivery can return null)
+    if (!nextDelivery) {
+      return { nextDelivery: null, cutoff: null, slots };
+    }
+
     if (override_cutoff) {
       cutoff = new Date(override_cutoff);
     } else {
