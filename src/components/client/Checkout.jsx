@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { G, GL, card, btnG, inp, lbl } from "../../lib/constants";
 
-const PICKUP_ADDR = "Str. Jean Louis Calderon 33, sector 2, București";
-
 export default function Checkout({ ctx }) {
   const {
     cart,
@@ -18,9 +16,12 @@ export default function Checkout({ ctx }) {
 
   const homeDelivery = settings?.homeDelivery === true;
   const farmerName = settings?.farmerName || "Denis";
+  // MINOR FIX #2: adresa de ridicare din settings, nu hardcodată în cod
+  const pickupAddr =
+    settings?.pickupAddress || "Str. Jean Louis Calderon 33, sector 2, București";
 
   const [del, setDel] = useState({
-    addr: homeDelivery ? "" : PICKUP_ADDR,
+    addr: homeDelivery ? "" : pickupAddr,
     slot: "",
     pay: "cash",
     note: "",
@@ -133,7 +134,7 @@ export default function Checkout({ ctx }) {
                 marginBottom: 6,
               }}
             >
-              📍 Ridicare din Calderon
+              📍 Ridicare
             </div>
             {nextDelivery && (
               <div style={{ fontSize: 13, color: "#2D2D2D", marginBottom: 4 }}>
@@ -143,7 +144,7 @@ export default function Checkout({ ctx }) {
             <div style={{ fontSize: 13, color: "#2D2D2D", marginBottom: 4 }}>
               Program: <strong>Luni–Duminică, 12:00–20:00</strong>
             </div>
-            <div style={{ fontSize: 12, color: "#777" }}>{PICKUP_ADDR}</div>
+            <div style={{ fontSize: 12, color: "#777" }}>{pickupAddr}</div>
           </div>
         ) : (
           <>
