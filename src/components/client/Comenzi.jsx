@@ -17,6 +17,7 @@ export default function Comenzi({ ctx }) {
   const [editingId, setEditingId] = useState(null);
   const [editDraft, setEditDraft] = useState(null);
   const [saving, setSaving] = useState(false);
+  const phone = settings?.whatsapp?.replace(/\s/g, "") || "";
 
   const formatDate = (d) =>
     d
@@ -74,47 +75,69 @@ export default function Comenzi({ ctx }) {
     }
   };
 
-  if (orders.length === 0)
-    return (
-      <div
+  const Header = () => (
+    <div
+      style={{
+        padding: "14px 18px 0",
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        marginBottom: 16,
+      }}
+    >
+      <button
+        onClick={() => setPage("home")}
         style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "80px 24px",
-          gap: 16,
+          background: "none",
+          border: "none",
+          fontSize: 22,
+          cursor: "pointer",
+          color: "#2D2D2D",
         }}
       >
-        <div style={{ fontSize: 64 }}>📋</div>
-        <div style={{ fontSize: 18, fontWeight: 800, color: "#2D2D2D" }}>
-          Nicio comandă încă
-        </div>
-        <p style={{ color: "#aaa", fontSize: 14, textAlign: "center", margin: 0 }}>
-          Comenzile tale vor apărea aici
-        </p>
-        <button
-          onClick={() => setPage("produse")}
-          style={{ ...btnG({ width: "auto", padding: "14px 28px" }) }}
+        ‹
+      </button>
+      <span style={{ fontWeight: 800, fontSize: 16, color: "#2D2D2D" }}>
+        Comenzile mele
+      </span>
+    </div>
+  );
+
+  if (orders.length === 0)
+    return (
+      <div>
+        <Header />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "40px 24px",
+            gap: 16,
+          }}
         >
-          Comandă acum
-        </button>
+          <div style={{ fontSize: 64 }}>📋</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: "#2D2D2D" }}>
+            Nicio comandă încă
+          </div>
+          <p style={{ color: "#aaa", fontSize: 14, textAlign: "center", margin: 0 }}>
+            Comenzile tale vor apărea aici
+          </p>
+          <button
+            onClick={() => setPage("produse")}
+            style={{ ...btnG({ width: "auto", padding: "14px 28px" }) }}
+          >
+            Comandă acum
+          </button>
+        </div>
       </div>
     );
 
   return (
     <div style={{ paddingBottom: 80 }}>
-      <div style={{ padding: "16px 18px 0" }}>
-        <h2
-          style={{
-            margin: "0 0 16px",
-            fontSize: 18,
-            fontWeight: 800,
-            color: "#2D2D2D",
-          }}
-        >
-          Comenzile mele
-        </h2>
+      <Header />
+      <div style={{ padding: "0 18px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {orders.map((o) => {
             const isPreorder = o.status === "Pre-comandă";
@@ -230,6 +253,30 @@ export default function Comenzi({ ctx }) {
                     {o.total} RON
                   </span>
                   <div style={{ display: "flex", gap: 8 }}>
+                    {phone && (
+                      <button
+                        onClick={() => {
+                          const msg = encodeURIComponent(
+                            `Bună! Am o întrebare despre comanda #${o.id}.`
+                          );
+                          window.open(
+                            `https://wa.me/${phone.replace("+", "")}?text=${msg}`
+                          );
+                        }}
+                        style={{
+                          background: "#25D366",
+                          color: "white",
+                          border: "none",
+                          borderRadius: 10,
+                          padding: "7px 12px",
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                        }}
+                      >
+                        💬
+                      </button>
+                    )}
                     {!isPreorder && (
                       <button
                         onClick={() => {
