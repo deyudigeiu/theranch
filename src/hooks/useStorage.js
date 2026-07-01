@@ -310,6 +310,61 @@ export function useStorage() {
     return data;
   };
 
+  const editOrder = async (orderId, updates, editorName, editorRole = "admin") => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return null;
+
+    const { data: current } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", orderId)
+      .single();
+    if (!current) return null;
+
+    // Calculeaza ce s-a schimbat
+    const changes = {};
+    if (updates.status !== undefined && updates.status !== current.status)
+      changes.status = { from: current.status, to: updates.status };
+    if (updates.items !== undefined)
+      changes.items = { from: current.items, to: updates.items };
+    if (updates.total !== undefined && updates.total !== current.total)
+      changes.total = { from: current.total, to: updates.total };
+    if (updates.pay !== undefined && updates.pay !== current.pay)
+      changes.pay = { from: current.pay, to: updates.pay };
+    if (updates.addr !== undefined && updates.addr !== current.addr)
+      changes.addr = { from: current.addr, to: updates.addr };
+    if (updates.note !== undefined && updates.note !== current.note)
+      changes.note = { from: current.note, to: updates.note };
+
+    const { data: updated } = await supabase
+      .from("orders")
+      .update(updates)
+      .eq("id", orderId)
+      .select("*")
+      .single();
+
+    await supabase.from("order_edits").insert({
+      order_id: orderId,
+      user_id: user.id,
+      editor_name: editorName || user.email,
+      editor_role: editorRole,
+      changes,
+    });
+
+    return updated;
+  };
+
+  const getOrderEdits = async (orderId) => {
+    const { data } = await supabase
+      .from("order_edits")
+      .select("*")
+      .eq("order_id", orderId)
+      .order("edited_at", { ascending: false });
+    return data || [];
+  };
+
   const deleteOrder = async (orderId) => {
     const { error } = await supabase.from("orders").delete().eq("id", orderId);
     if (error) {
@@ -583,6 +638,8 @@ export function useStorage() {
     createOrder,
     updateOrderStatus,
     deleteOrder,
+    editOrder,
+    getOrderEdits,
     getNotifications,
     markNotificationsRead,
     markOneNotifRead,
