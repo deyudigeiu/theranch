@@ -409,7 +409,8 @@ export default function AdminClients({ ctx }) {
                               [client.id]: e.target.value,
                             }))
                           }
-                          placeholder="Notă despre client (doar Denis o vede)..."
+                          // MINOR FIX #3: folosește farmerName din settings în loc de "Denis" hardcodat
+                          placeholder={`Notă despre client (doar ${settings?.farmerName || "Denis"} o vede)...`}
                           style={{
                             ...inp,
                             resize: "vertical",
