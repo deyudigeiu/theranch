@@ -254,7 +254,7 @@ export default function AdminHome({ ctx }) {
                       borderRadius: 6,
                     }}
                   >
-                    {p.stock} {p.unit}
+                    {p.stock} × {p.unit}
                   </span>
                   <button
                     onClick={() => setAdminPage("products")}
