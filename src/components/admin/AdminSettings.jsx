@@ -456,14 +456,14 @@ export default function AdminSettings({ ctx }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            marginBottom: 20,
+            marginBottom: 12,
             cursor: "pointer",
           }}
         >
           <div>
             <div style={{ fontSize: 13, color: "#555" }}>🚚 Livrare la domiciliu</div>
             <div style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>
-              Dezactivat = ridicare din Calderon
+              Dezactivat = ridicare din punct fix
             </div>
           </div>
           <input
@@ -473,6 +473,19 @@ export default function AdminSettings({ ctx }) {
               setGen((g) => ({ ...g, homeDelivery: e.target.checked }))
             }
             style={{ accentColor: G, width: 18, height: 18 }}
+          />
+        </label>
+
+        {/* MINOR FIX #2: adresa de ridicare editabilă din setări */}
+        <label style={{ display: "block", marginBottom: 20 }}>
+          <span style={lbl}>Adresă ridicare</span>
+          <input
+            value={gen.pickupAddress || ""}
+            onChange={(e) =>
+              setGen((g) => ({ ...g, pickupAddress: e.target.value }))
+            }
+            placeholder="Str. Jean Louis Calderon 33, sector 2, București"
+            style={inp}
           />
         </label>
 
