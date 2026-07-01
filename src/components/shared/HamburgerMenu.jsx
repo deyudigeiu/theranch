@@ -7,11 +7,9 @@ export default function HamburgerMenu({ ctx }) {
     viewAsClient,
     setViewAsClient,
     profile,
-    notifCount,
     menuOpen,
     signOut,
     modules,
-    settings,
   } = ctx;
 
   if (!menuOpen) return null;
@@ -30,10 +28,8 @@ export default function HamburgerMenu({ ctx }) {
   const clientItems = [
     { e: "📋", l: "Comenzile mele", a: () => go("comenzi") },
     { e: "❤️", l: "Favoritele mele", a: () => go("wishlist"), mod: "wishlist" },
-    { e: "🔔", l: "Notificări", a: () => go("notifs"), badge: notifCount },
     { e: "👤", l: "Profilul meu", a: () => go("profile") },
-    { e: "📍", l: "Adrese salvate", a: () => go("addresses"), hidden: !settings?.homeDelivery },
-    { e: "🛒", l: "Coșul Lunii", a: () => go("cosBaza"), mod: "cosBaza" },
+    { e: "📍", l: "Adrese salvate", a: () => go("addresses") },
     { e: "🌾", l: "Despre fermă", a: () => go("about"), mod: "about" },
     { e: "🖼️", l: "Galerie foto", a: () => go("gallery"), mod: "gallery" },
     { e: "📹", l: "Live", a: () => go("live"), mod: "live" },
@@ -60,7 +56,7 @@ export default function HamburgerMenu({ ctx }) {
   ];
 
   const items = (admin && !viewAsClient ? adminItems : clientItems).filter(
-    (item) => !item.hidden && (!item.mod || modules?.[item.mod])
+    (item) => !item.mod || modules?.[item.mod]
   );
 
   const initials = (profile?.name || "?")
@@ -192,31 +188,10 @@ export default function HamburgerMenu({ ctx }) {
               color: "#2D2D2D",
               textAlign: "left",
               width: "100%",
-              position: "relative",
             }}
           >
             <span style={{ fontSize: 19 }}>{item.e}</span>
             {item.l}
-            {item.badge > 0 && (
-              <span
-                style={{
-                  marginLeft: "auto",
-                  background: "#E53935",
-                  color: "white",
-                  fontSize: 10,
-                  fontWeight: 800,
-                  minWidth: 18,
-                  height: 18,
-                  borderRadius: 9,
-                  padding: "0 5px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {item.badge}
-              </span>
-            )}
           </button>
         ))}
 
