@@ -422,6 +422,18 @@ export function useStorage() {
       .eq("id", notifId);
   };
 
+  const deleteNotification = async (notifId) => {
+    await supabase.from("notifications").delete().eq("id", notifId);
+  };
+
+  const deleteAllNotifications = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from("notifications").delete().eq("user_id", user.id);
+  };
+
   const getReviews = async (productId) => {
     const { data } = await supabase
       .from("reviews")
@@ -658,6 +670,8 @@ export function useStorage() {
     getNotifications,
     markNotificationsRead,
     markOneNotifRead,
+    deleteNotification,
+    deleteAllNotifications,
     getReviews,
     saveReview,
     getSubscriptions,
