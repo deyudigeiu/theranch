@@ -14,7 +14,8 @@ export default function AdminDeliveryList({ ctx }) {
       setLoading(true);
       const data = await storage.getOrders(false);
       const relevant = (data || []).filter((o) =>
-        ["Nouă", "În procesare", "Pregătită"].includes(o.status)
+        // MEDIU FIX #2: statusuri corecte pentru comenzi active de livrat
+        ["Nouă", "Confirmată", "În livrare"].includes(o.status)
       );
       setOrders(relevant);
       setLoading(false);
