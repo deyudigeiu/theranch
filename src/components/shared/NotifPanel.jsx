@@ -15,7 +15,16 @@ function timeAgo(dateStr) {
 }
 
 export default function NotifPanel({ ctx }) {
-  const { notifications, notifOpen, setNotifOpen, markNotifRead, markAllNotifsRead, notifCount } = ctx;
+  const {
+    notifications,
+    notifOpen,
+    setNotifOpen,
+    markNotifRead,
+    markAllNotifsRead,
+    notifCount,
+    deleteNotif,
+    deleteAllNotifs,
+  } = ctx;
 
   if (!notifOpen) return null;
 
@@ -95,6 +104,22 @@ export default function NotifPanel({ ctx }) {
                 Toate citite
               </button>
             )}
+            {notifications.length > 0 && (
+              <button
+                onClick={deleteAllNotifs}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#DC2626",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  padding: "4px 8px",
+                }}
+              >
+                Șterge toate
+              </button>
+            )}
             <button
               onClick={() => setNotifOpen(false)}
               style={{
@@ -137,7 +162,6 @@ export default function NotifPanel({ ctx }) {
             notifications.map((n) => (
               <div
                 key={n.id}
-                onClick={() => !n.read && markNotifRead(n.id)}
                 style={{
                   display: "flex",
                   alignItems: "flex-start",
@@ -145,12 +169,12 @@ export default function NotifPanel({ ctx }) {
                   padding: "14px 18px",
                   borderBottom: "1px solid #f5f5f5",
                   background: n.read ? "white" : "#F0FDF4",
-                  cursor: n.read ? "default" : "pointer",
                   transition: "background 0.2s",
                 }}
               >
                 {/* Icon */}
                 <div
+                  onClick={() => !n.read && markNotifRead(n.id)}
                   style={{
                     width: 38,
                     height: 38,
@@ -161,13 +185,21 @@ export default function NotifPanel({ ctx }) {
                     justifyContent: "center",
                     fontSize: 18,
                     flexShrink: 0,
+                    cursor: n.read ? "default" : "pointer",
                   }}
                 >
                   {TYPE_ICON[n.type] || "📢"}
                 </div>
 
                 {/* Continut */}
-                <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  onClick={() => !n.read && markNotifRead(n.id)}
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    cursor: n.read ? "default" : "pointer",
+                  }}
+                >
                   <div
                     style={{
                       fontSize: 13,
@@ -178,16 +210,31 @@ export default function NotifPanel({ ctx }) {
                   >
                     {n.msg}
                   </div>
-                  <div
-                    style={{
-                      fontSize: 11,
-                      color: "#bbb",
-                      marginTop: 4,
-                    }}
-                  >
+                  <div style={{ fontSize: 11, color: "#bbb", marginTop: 4 }}>
                     {timeAgo(n.created_at)}
                   </div>
                 </div>
+
+                {/* Buton stergere */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteNotif(n.id);
+                  }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#ccc",
+                    fontSize: 18,
+                    cursor: "pointer",
+                    padding: "0 2px",
+                    flexShrink: 0,
+                    lineHeight: 1,
+                  }}
+                  title="Șterge notificarea"
+                >
+                  ×
+                </button>
 
                 {/* Indicator necitit */}
                 {!n.read && (
