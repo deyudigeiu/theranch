@@ -1,7 +1,7 @@
 import { G, GL } from "../../lib/constants";
 
 export default function Header({ ctx }) {
-  const { setMenu, setPage, cartCount, notifCount, admin, viewAsClient } = ctx;
+  const { setMenu, setPage, cartCount, notifCount, admin, viewAsClient, setNotifOpen } = ctx;
 
   const showAdmin = admin && !viewAsClient;
 
@@ -29,7 +29,6 @@ export default function Header({ ctx }) {
           display: "flex",
           flexDirection: "column",
           gap: 5,
-          position: "relative",
         }}
       >
         {[0, 1, 2].map((i) => (
@@ -43,27 +42,6 @@ export default function Header({ ctx }) {
             }}
           />
         ))}
-        {notifCount > 0 && (
-          <span
-            style={{
-              position: "absolute",
-              top: -2,
-              right: -4,
-              background: "#E53935",
-              color: "white",
-              fontSize: 9,
-              fontWeight: 800,
-              width: 14,
-              height: 14,
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {notifCount}
-          </span>
-        )}
       </button>
 
       {/* Logo */}
@@ -71,7 +49,6 @@ export default function Header({ ctx }) {
         <div
           style={{
             fontWeight: 900,
-            fontSize: 17,
             color: G,
             letterSpacing: "-0.5px",
             fontFamily: "'Cormorant Garamond', Georgia, serif",
@@ -90,59 +67,99 @@ export default function Header({ ctx }) {
             marginTop: 1,
           }}
         >
-          Ferma
+          Ranch
         </div>
       </div>
 
-      {/* Dreapta */}
-      {showAdmin ? (
-        <span
-          style={{
-            background: "#FEF3CD",
-            color: "#B45309",
-            fontSize: 11,
-            fontWeight: 800,
-            padding: "4px 10px",
-            borderRadius: 8,
-          }}
-        >
-          ADMIN
-        </span>
-      ) : (
+      {/* Dreapta: bell + cos / admin */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        {/* Bell */}
         <button
-          onClick={() => setPage("cos")}
+          onClick={() => setNotifOpen(true)}
           style={{
-            background: GL,
+            background: notifCount > 0 ? "#FEF2F2" : GL,
             border: "none",
             cursor: "pointer",
-            padding: "7px 12px",
+            padding: "7px 10px",
             borderRadius: 14,
             display: "flex",
             alignItems: "center",
-            gap: 6,
+            gap: 4,
+            position: "relative",
           }}
         >
-          <span style={{ fontSize: 19 }}>🛒</span>
-          {cartCount > 0 && (
+          <span style={{ fontSize: 18 }}>{notifCount > 0 ? "🔔" : "🔕"}</span>
+          {notifCount > 0 && (
             <span
               style={{
-                background: G,
+                background: "#DC2626",
                 color: "white",
                 fontSize: 10,
                 fontWeight: 800,
-                width: 18,
+                minWidth: 18,
                 height: 18,
-                borderRadius: "50%",
+                borderRadius: 9,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                padding: "0 4px",
               }}
             >
-              {cartCount}
+              {notifCount}
             </span>
           )}
         </button>
-      )}
+
+        {/* Cos sau Admin */}
+        {showAdmin ? (
+          <span
+            style={{
+              background: "#FEF3CD",
+              color: "#B45309",
+              fontSize: 11,
+              fontWeight: 800,
+              padding: "4px 10px",
+              borderRadius: 8,
+            }}
+          >
+            ADMIN
+          </span>
+        ) : (
+          <button
+            onClick={() => setPage("cos")}
+            style={{
+              background: GL,
+              border: "none",
+              cursor: "pointer",
+              padding: "7px 12px",
+              borderRadius: 14,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <span style={{ fontSize: 19 }}>🛒</span>
+            {cartCount > 0 && (
+              <span
+                style={{
+                  background: G,
+                  color: "white",
+                  fontSize: 10,
+                  fontWeight: 800,
+                  width: 18,
+                  height: 18,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {cartCount}
+              </span>
+            )}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
