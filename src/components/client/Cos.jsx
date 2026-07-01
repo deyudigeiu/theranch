@@ -8,7 +8,12 @@ export default function Cos({ ctx }) {
     setCartQty,
     setPage,
     findCategory,
+    settings,
+    showToast,
   } = ctx;
+
+  // MEDIU FIX #7: check shopOpen before allowing checkout navigation
+  const shopOpen = settings?.shopOpen !== false;
 
   const cartItems = (cart || [])
     .map(({ product_id, qty }) => ({
@@ -67,6 +72,23 @@ export default function Cos({ ctx }) {
         >
           Coșul meu ({cartItems.length})
         </h2>
+
+        {/* Avertisment magazin inchis */}
+        {!shopOpen && (
+          <div
+            style={{
+              background: "#FEE2E2",
+              borderRadius: 12,
+              padding: "10px 14px",
+              marginBottom: 14,
+              fontSize: 13,
+              color: "#DC2626",
+              fontWeight: 600,
+            }}
+          >
+            🔒 Magazinul este momentan închis. Comenzile nu pot fi plasate.
+          </div>
+        )}
 
         {/* Produse */}
         <div
@@ -212,10 +234,23 @@ export default function Cos({ ctx }) {
         </div>
 
         <button
-          onClick={() => setPage("checkout")}
-          style={{ ...btnG(), padding: "18px", fontSize: 16 }}
+          onClick={() => {
+            if (!shopOpen) {
+              showToast("Magazinul este momentan închis", "🔒");
+              return;
+            }
+            setPage("checkout");
+          }}
+          disabled={!shopOpen}
+          style={{
+            ...btnG({ opacity: shopOpen ? 1 : 0.5 }),
+            padding: "18px",
+            fontSize: 16,
+          }}
         >
-          Comandă acum — {subtotal} RON →
+          {shopOpen
+            ? `Comandă acum — ${subtotal} RON →`
+            : "Magazin închis"}
         </button>
       </div>
     </div>
