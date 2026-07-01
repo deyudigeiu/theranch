@@ -638,7 +638,7 @@ export default function App() {
           {page === "confirmare" && <Confirmare ctx={ctx} />}
           {page === "comenzi" && <Comenzi ctx={ctx} />}
           {page === "profile" && <Profile ctx={ctx} />}
-          {page === "addresses" && <Addresses ctx={ctx} />}
+          {page === "addresses" && <Profile ctx={ctx} />}
           {page === "wishlist" && <Wishlist ctx={ctx} />}
           {page === "notifs" && <Notifs ctx={ctx} />}
           {page === "help" && <Help ctx={ctx} />}
