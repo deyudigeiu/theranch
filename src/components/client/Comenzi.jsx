@@ -48,7 +48,6 @@ export default function Comenzi({ ctx }) {
   const [editingId, setEditingId] = useState(null);
   const [editDraft, setEditDraft] = useState(null);
   const [saving, setSaving] = useState(false);
-  const phone = settings?.whatsapp?.replace(/\s/g, "") || "";
 
   const formatDate = (d) =>
     d
@@ -257,30 +256,6 @@ export default function Comenzi({ ctx }) {
                     {o.total} RON
                   </span>
                   <div style={{ display: "flex", gap: 8 }}>
-                    {phone && (
-                      <button
-                        onClick={() => {
-                          const msg = encodeURIComponent(
-                            `Bună! Am o întrebare despre comanda #${o.id}.`
-                          );
-                          window.open(
-                            `https://wa.me/${phone.replace("+", "")}?text=${msg}`
-                          );
-                        }}
-                        style={{
-                          background: "#25D366",
-                          color: "white",
-                          border: "none",
-                          borderRadius: 10,
-                          padding: "7px 12px",
-                          fontSize: 12,
-                          fontWeight: 700,
-                          cursor: "pointer",
-                        }}
-                      >
-                        💬
-                      </button>
-                    )}
                     {!isPreorder && (
                       <button
                         onClick={() => {
