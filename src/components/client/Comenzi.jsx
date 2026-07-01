@@ -10,7 +10,6 @@ export default function Comenzi({ ctx }) {
     settings,
     findProduct,
     addToCart,
-    storage,
     editOrder,
   } = ctx;
 
@@ -65,13 +64,15 @@ export default function Comenzi({ ctx }) {
     }
   };
 
+  // CRITIC FIX #5: use editOrder (with audit trail) instead of storage.updateOrderStatus directly
   const cancelPreorder = async (orderId) => {
-    await storage.updateOrderStatus(orderId, "Anulată");
-    setOrders((prev) =>
-      prev.map((o) => (o.id === orderId ? { ...o, status: "Anulată" } : o))
-    );
-    setCancelling(null);
-    showToast("Pre-comandă anulată", "✓");
+    const updated = await editOrder(orderId, { status: "Anulată" });
+    if (updated) {
+      setCancelling(null);
+      showToast("Pre-comandă anulată", "✓");
+    } else {
+      showToast("Eroare la anulare", "❌");
+    }
   };
 
   if (orders.length === 0)
@@ -234,7 +235,7 @@ export default function Comenzi({ ctx }) {
                       <button
                         onClick={() => {
                           const msg = encodeURIComponent(
-                            `Bună Denis! Am o întrebare despre comanda #${o.id}.`
+                            `Bună! Am o întrebare despre comanda #${o.id}.`
                           );
                           window.open(
                             `https://wa.me/${phone.replace("+", "")}?text=${msg}`
