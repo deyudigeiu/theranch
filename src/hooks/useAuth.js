@@ -16,6 +16,10 @@ export function useAuth() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setLoading(false);
+      // Curăță token-ul din URL după login cu magic link
+      if (window.location.hash.includes("access_token")) {
+        window.history.replaceState(null, "", window.location.pathname);
+      }
     });
 
     return () => subscription.unsubscribe();
